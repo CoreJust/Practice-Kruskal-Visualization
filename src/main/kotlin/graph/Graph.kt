@@ -13,7 +13,9 @@ import java.util.TreeSet
 import kotlin.collections.ArrayList
 
 open class Graph {
-    internal var vertices: TreeSet<Vertex> = TreeSet()
+    var vertices: TreeSet<Vertex> = TreeSet()
+        internal set
+
     private var vertexIdCounter = 0 // Allows to give unique IDs to each vertex
 
     // Splits the vertices of the graph into several subsets that represent its connectivity components.

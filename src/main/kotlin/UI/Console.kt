@@ -12,7 +12,9 @@ import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import graph.Graph
 import graph.RenderableGraph
 import graph.layout.CircleLayout
@@ -84,7 +86,33 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onGraphChange: (RenderableGraph) -> 
                 renderableGraph.positionVertices(CircleLayout())
                 onGraphChange(renderableGraph)
             }, modifier = Modifier.fillMaxWidth().weight(1f)) {
-                Text("Load")
+                Text("Execute")
+            }
+        } else {
+            Row (modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterHorizontally)) {
+                Box (modifier = Modifier.fillMaxHeight().weight(1f)) {
+                    Button(onClick = {
+
+                    }, modifier = Modifier.fillMaxSize()) {
+                        Text("<")
+                    }
+                }
+
+                Box (modifier = Modifier.fillMaxHeight().weight(2f).padding(horizontal = 10.dp)) {
+                    Button(onClick = {
+
+                    }, modifier = Modifier.fillMaxSize()) {
+                        Text("Run")
+                    }
+                }
+
+                Box (modifier = Modifier.fillMaxHeight().weight(1f)) {
+                    Button(onClick = {
+
+                    }, modifier = Modifier.fillMaxSize()) {
+                        Text(">")
+                    }
+                }
             }
         }
     }

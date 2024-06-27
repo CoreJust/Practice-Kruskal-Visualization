@@ -32,8 +32,8 @@ fun main() = application {
                 Menu("File", mnemonic = 'F') {
                     Item("Load graph", onClick = { GraphLoadDialogUI(window, GraphView::onGraphChange) }, shortcut = KeyShortcut(Key.G, ctrl = true))
                     Item("Save graph", onClick = { GraphSaveDialogUI(window, GraphView.renderableGraph) }, shortcut = KeyShortcut(Key.S, ctrl = true))
-                    Item("Load session", onClick = {  }, shortcut = KeyShortcut(Key.O, ctrl = true))
-                    Item("New session", onClick = {  }, shortcut = KeyShortcut(Key.N, ctrl = true))
+                    // Item("Load session", onClick = {  }, shortcut = KeyShortcut(Key.O, ctrl = true))
+                    // Item("New session", onClick = {  }, shortcut = KeyShortcut(Key.N, ctrl = true))
                     Item("Exit", onClick = ::exitApplication, shortcut = KeyShortcut(Key.Escape, ctrl = true))
                 }
                 Menu ("Mode", mnemonic = 'M') {
@@ -45,8 +45,8 @@ fun main() = application {
                     Item("Algorithm options", onClick = { })
                 }
                 Menu("Info", mnemonic = 'I') {
-                    Item("Open guide", onClick = { })
-                    Item("Open program info", onClick = { })
+                    Item("Guide", onClick = { })
+                    Item("About program", onClick = { })
                 }
             }
 
