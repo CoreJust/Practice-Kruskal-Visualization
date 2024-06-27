@@ -215,22 +215,45 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
             val buttonTextStyle = TextStyle.Default.copy(fontWeight = FontWeight.Bold, fontSize = 32.sp)
             val buttonPadding = 7.dp
             var editModeText by remember { mutableStateOf("V") }
-            Button(onClick = {
-                if (editModeText == "V") {
-                    GraphView.changeVertexEditModeTo(false)
-                    editModeText = "E"
-                } else {
-                    GraphView.changeVertexEditModeTo(true)
-                    editModeText = "V"
+
+            if (isEditMode) {
+                Button(onClick = {
+                    if (editModeText == "V") {
+                        GraphView.changeVertexEditModeTo(false)
+                        editModeText = "E"
+                    } else {
+                        GraphView.changeVertexEditModeTo(true)
+                        editModeText = "V"
+                    }
+                }) {
+                    Text(editModeText, style = buttonTextStyle)
                 }
-            }) {
-                Text(editModeText, style = buttonTextStyle)
             }
 
             Button(onClick = {
                 GraphView.repositionVertices()
             }, modifier = Modifier.padding(vertical = buttonPadding)) {
                 Text("A", style = buttonTextStyle)
+            }
+
+            if (isEditMode) {
+                Button(onClick = {
+
+                }) {
+                    Text("C", style = buttonTextStyle)
+                }
+
+                Button(onClick = {
+
+                }, modifier = Modifier.padding(vertical = buttonPadding)) {
+                    Text("I", style = buttonTextStyle)
+                }
+            }
+
+            Button(onClick = {
+
+            }) {
+                Text("?", style = buttonTextStyle)
             }
         }
     }

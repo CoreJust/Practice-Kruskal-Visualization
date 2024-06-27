@@ -98,14 +98,15 @@ class RenderableGraph : Graph() {
                 )
 
                 // And finally, vertex names
-                if (vertex.name.isNotEmpty() && vertex.name[0] != '_') { // Ignore vertex names that begin with _
+                val nameToDraw = vertex.name.substringBefore(' ', "") // We drop the part of the name that comes after the first _
+                if (nameToDraw.isNotEmpty()) { // Ignore vertex names that begin with _
                     val vertexTextStyle = TextStyle.Default.copy(
                         color = TEXT_COLOR,
                         fontSize = VERTEX_NAME_FONT_SIZE.sp,
                         fontWeight = FontWeight.Bold
                     )
 
-                    val vertexTextSize = textMeasurer.measure(vertex.name, style = vertexTextStyle.copy(fontSize = vertexTextStyle.fontSize * widgetScale))
+                    val vertexTextSize = textMeasurer.measure(nameToDraw, style = vertexTextStyle.copy(fontSize = vertexTextStyle.fontSize * widgetScale))
                         .size.let {
                         Offset(
                             it.width.toFloat() / widgetScale,
@@ -115,7 +116,7 @@ class RenderableGraph : Graph() {
 
                     drawScope.drawText( // Vertex name
                         textMeasurer,
-                        vertex.name,
+                        nameToDraw,
                         topLeft = point - vertexTextSize * 0.5f,
                         style = vertexTextStyle
                     )
@@ -131,11 +132,21 @@ class RenderableGraph : Graph() {
 
     // Allows to give a vertex a color, if color is null than the default color is applied
     fun setVertexColor(vertex: Vertex, color: Color?) {
+        if (!vertices.contains(vertex)) {
+            throw NoSuchVertexException(vertex.name)
+        }
+
         vertex.color = color ?: DEFAULT_COLOR
     }
 
     // Allows to give a vertex a color, if color is null than the default color is applied
     fun setEdgeColor(from: Vertex, to: Vertex, color: Color?) {
+        if (!vertices.contains(from)) {
+            throw NoSuchVertexException(from.name)
+        } else if (!vertices.contains(to)) {
+            throw NoSuchVertexException(to.name)
+        }
+
         setOneSideEdgeColor(from, to, color ?: DEFAULT_COLOR)
         setOneSideEdgeColor(to, from, color ?: DEFAULT_COLOR)
     }
@@ -192,6 +203,12 @@ class RenderableGraph : Graph() {
 
     // Adds an edge to the graph
     fun addEdge(from: Vertex, to: Vertex, weight: Int) {
+        if (!vertices.contains(from)) {
+            throw NoSuchVertexException(from.name)
+        } else if (!vertices.contains(to)) {
+            throw NoSuchVertexException(to.name)
+        }
+
         if (from.id == to.id) {
             throw SelfLoopException(from.name)
         }
@@ -205,6 +222,12 @@ class RenderableGraph : Graph() {
 
     // Removes an edge from the graph and removes its render info
     fun removeEdge(from: Vertex, to: Vertex) {
+        if (!vertices.contains(from)) {
+            throw NoSuchVertexException(from.name)
+        } else if (!vertices.contains(to)) {
+            throw NoSuchVertexException(to.name)
+        }
+
         if (from.edges.find { it.to.id == to.id } == null) {
             throw NoSuchEdgeException(from.name, to.name)
         }
@@ -230,6 +253,12 @@ class RenderableGraph : Graph() {
     // Returns the edge between 2 vertices
     // Returns null if no such edge exists
     fun getEdge(from: Vertex, to: Vertex): Edge? {
+        if (!vertices.contains(from)) {
+            throw NoSuchVertexException(from.name)
+        } else if (!vertices.contains(to)) {
+            throw NoSuchVertexException(to.name)
+        }
+
         return from.edges.find { it.to.id == to.id }
     }
 
