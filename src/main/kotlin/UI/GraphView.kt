@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import graph.Graph
 import graph.GraphException
 import graph.RenderableGraph
 import graph.Vertex
@@ -78,7 +77,10 @@ class GraphView {
                 graphRenderTrigger += 1
             }
 
-            val position = (originalMousePosition / widgetScale - Offset(0.5f, 0.5f)) / transformScale + Offset(0.5f, 0.5f) - transformOffset
+            val position = (originalMousePosition / widgetScale - Offset(0.5f, 0.5f)) / transformScale + Offset(
+                0.5f,
+                0.5f
+            ) - transformOffset
             if (isVertexEditMode) {
                 handleMousePressInVertexMode(buttons, position)
             } else {
@@ -163,7 +165,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
 
     GraphView.isEditMode = isEditMode
 
-    Row (
+    Row(
         modifier = Modifier.fillMaxHeight().weight(2f).padding(horizontal = 10.dp)
     ) {
         val textMeasurer = rememberTextMeasurer()
@@ -209,7 +211,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
         }
 
         // The menu to the right of GraphView
-        Column (
+        Column(
             modifier = Modifier.fillMaxHeight().weight(1f)
         ) {
             val buttonTextStyle = TextStyle.Default.copy(fontWeight = FontWeight.Bold, fontSize = 32.sp)

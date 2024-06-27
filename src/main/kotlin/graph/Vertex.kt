@@ -11,9 +11,9 @@ import androidx.compose.ui.graphics.Color
 
 typealias VertexId = Int
 
-data class Vertex(val id: VertexId, var name: String, var position: Offset? = null, var color: Color)
-    : Comparable<Vertex> {
-    var edges: ArrayList<Edge> = arrayListOf()
+data class Vertex(val id: VertexId, var name: String, var position: Offset? = null, var color: Color) :
+    Comparable<Vertex> {
+    var outcomingEdges: ArrayList<OutcomingEdge> = arrayListOf()
 
     override fun compareTo(other: Vertex): Int = this.id - other.id
 }

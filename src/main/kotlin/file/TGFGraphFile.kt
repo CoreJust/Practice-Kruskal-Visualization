@@ -6,7 +6,6 @@
 
 package file
 
-import graph.Graph
 import graph.RenderableGraph
 import java.io.File
 
@@ -39,7 +38,7 @@ class TGFGraphFile(val file: File) : GraphFile {
                 isReadingVertices = false
             } else if (isReadingVertices) {
                 val vertexLabelStr = line.substringBefore(' ')
-                if (vertexLabelStr.isEmpty()) return@forEachLine;
+                if (vertexLabelStr.isEmpty()) return@forEachLine
 
                 val vertexLabel = vertexLabelStr.toIntOrNull() ?: return@forEachLine
                 var vertexName = line.substringAfter(' ')
@@ -49,7 +48,7 @@ class TGFGraphFile(val file: File) : GraphFile {
 
                 vertexMap[vertexLabel] = vertexName
                 result.addVertex(vertexName)
-            } else { // Reading edges
+            } else { // Reading outcomingEdges
                 val from = line.substringBefore(' ').toIntOrNull() ?: return@forEachLine
                 val leftover = line.substringAfter(' ', "")
                 if (leftover.isEmpty()) return@forEachLine
@@ -72,8 +71,8 @@ class TGFGraphFile(val file: File) : GraphFile {
 
             out.write("#\n")
             for (vertex in graph.vertices) {
-                for (edge in vertex.edges) {
-                    if (edge.to.id <= vertex.id) continue;
+                for (edge in vertex.outcomingEdges) {
+                    if (edge.to.id <= vertex.id) continue
 
                     out.write("${vertex.id} ${edge.to.id} ${edge.weight}\n")
                 }

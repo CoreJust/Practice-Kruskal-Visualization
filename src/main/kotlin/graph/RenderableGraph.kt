@@ -37,7 +37,13 @@ class RenderableGraph : Graph() {
 
     // Does the actual rendering,
     // Must be called from Canvas context.
-    fun renderGraph(drawScope: DrawScope, textMeasurer: TextMeasurer, offset: Offset, scale: Float, widgetScale: Float) {
+    fun renderGraph(
+        drawScope: DrawScope,
+        textMeasurer: TextMeasurer,
+        offset: Offset,
+        scale: Float,
+        widgetScale: Float
+    ) {
         drawScope.withTransform(transformBlock = {
             scale(widgetScale, widgetScale, Offset(0f, 0f))
             translate(left = 0.5f, top = 0.5f)
@@ -47,8 +53,8 @@ class RenderableGraph : Graph() {
             for (vertex in vertices) {
                 val point = vertex.position ?: continue
 
-                // First we render all the edges and their weights over them
-                for (edge in vertex.edges) {
+                // First we render all the outcomingEdges and their weights over them
+                for (edge in vertex.outcomingEdges) {
                     val toVertex = edge.to
                     if (vertex.id < toVertex.id) {
                         val toPosition = toVertex.position ?: continue
@@ -67,13 +73,16 @@ class RenderableGraph : Graph() {
                             fontSize = WEIGHT_FONT_SIZE.sp
                         )
 
-                        val weightSize = textMeasurer.measure(weight, style = weightTextStyle.copy(fontSize = weightTextStyle.fontSize * widgetScale))
+                        val weightSize = textMeasurer.measure(
+                            weight,
+                            style = weightTextStyle.copy(fontSize = weightTextStyle.fontSize * widgetScale)
+                        )
                             .size.let {
-                            Offset(
-                                it.width.toFloat() / widgetScale,
-                                -it.height.toFloat() / (2 * widgetScale)
-                            )
-                        }
+                                Offset(
+                                    it.width.toFloat() / widgetScale,
+                                    -it.height.toFloat() / (2 * widgetScale)
+                                )
+                            }
 
                         drawScope.drawCircle( // The background for the weight
                             color = WEIGHT_BACKGROUND_COLOR,
@@ -98,7 +107,7 @@ class RenderableGraph : Graph() {
                 )
 
                 // And finally, vertex names
-                val nameToDraw = vertex.name.substringBefore(' ', "") // We drop the part of the name that comes after the first _
+                val nameToDraw = vertex.name.substringBefore(' ') // We drop the part of the name that comes after the first _
                 if (nameToDraw.isNotEmpty()) { // Ignore vertex names that begin with _
                     val vertexTextStyle = TextStyle.Default.copy(
                         color = TEXT_COLOR,
@@ -106,13 +115,16 @@ class RenderableGraph : Graph() {
                         fontWeight = FontWeight.Bold
                     )
 
-                    val vertexTextSize = textMeasurer.measure(nameToDraw, style = vertexTextStyle.copy(fontSize = vertexTextStyle.fontSize * widgetScale))
+                    val vertexTextSize = textMeasurer.measure(
+                        nameToDraw,
+                        style = vertexTextStyle.copy(fontSize = vertexTextStyle.fontSize * widgetScale)
+                    )
                         .size.let {
-                        Offset(
-                            it.width.toFloat() / widgetScale,
-                            -it.height.toFloat() / (2 * widgetScale)
-                        )
-                    }
+                            Offset(
+                                it.width.toFloat() / widgetScale,
+                                -it.height.toFloat() / (2 * widgetScale)
+                            )
+                        }
 
                     drawScope.drawText( // Vertex name
                         textMeasurer,
@@ -130,6 +142,24 @@ class RenderableGraph : Graph() {
         layout.positionVertices(this)
     }
 
+    // Changes the color of all the vertices with oldColor to newColor
+    // Returns the number of vertices that change the color
+    fun replaceVertexColor(oldColor: Color, newColor: Color): Int {
+        if (oldColor == newColor) {
+            return 0
+        }
+
+        var colorChangeCounter = 0
+        vertices.forEach {
+            if (it.color == oldColor) {
+                colorChangeCounter += 1
+                it.color = newColor
+            }
+        }
+
+        return colorChangeCounter
+    }
+
     // Allows to give a vertex a color, if color is null than the default color is applied
     fun setVertexColor(vertex: Vertex, color: Color?) {
         if (!vertices.contains(vertex)) {
@@ -139,7 +169,12 @@ class RenderableGraph : Graph() {
         vertex.color = color ?: DEFAULT_COLOR
     }
 
-    // Allows to give a vertex a color, if color is null than the default color is applied
+    // Allows to give an edge a color, if color is null than the default color is applied
+    fun setEdgeColor(edge: Edge, color: Color?) {
+        setEdgeColor(edge.first, edge.second, color)
+    }
+
+    // Allows to give an edge a color, if color is null than the default color is applied
     fun setEdgeColor(from: Vertex, to: Vertex, color: Color?) {
         if (!vertices.contains(from)) {
             throw NoSuchVertexException(from.name)
@@ -213,14 +248,19 @@ class RenderableGraph : Graph() {
             throw SelfLoopException(from.name)
         }
 
-        if (from.edges.find { it.to.id == to.id } != null) {
+        if (from.outcomingEdges.find { it.to.id == to.id } != null) {
             throw EdgeAlreadyExistsException(from.name, to.name)
         }
 
         super.addEdge(from, to, weight, DEFAULT_COLOR)
     }
 
-    // Removes an edge from the graph and removes its render info
+    // Removes an edge from the graph
+    fun removeEdge(edge: Edge) {
+        removeEdge(edge.first, edge.second)
+    }
+
+    // Removes an edge from the graph
     fun removeEdge(from: Vertex, to: Vertex) {
         if (!vertices.contains(from)) {
             throw NoSuchVertexException(from.name)
@@ -228,7 +268,7 @@ class RenderableGraph : Graph() {
             throw NoSuchVertexException(to.name)
         }
 
-        if (from.edges.find { it.to.id == to.id } == null) {
+        if (from.outcomingEdges.find { it.to.id == to.id } == null) {
             throw NoSuchEdgeException(from.name, to.name)
         }
 
@@ -250,6 +290,7 @@ class RenderableGraph : Graph() {
         return (if (result == -1) vertices.size else result).toString()
     }
 
+
     // Returns the edge between 2 vertices
     // Returns null if no such edge exists
     fun getEdge(from: Vertex, to: Vertex): Edge? {
@@ -259,7 +300,20 @@ class RenderableGraph : Graph() {
             throw NoSuchVertexException(to.name)
         }
 
-        return from.edges.find { it.to.id == to.id }
+        val weight = from.outcomingEdges.find { it.to.id == to.id }?.weight ?: return null
+        return Edge(from, to, weight)
+    }
+
+    // Returns the outcoming edge between 2 vertices
+    // Returns null if no such edge exists
+    fun getOutcomingEdge(from: Vertex, to: Vertex): OutcomingEdge? {
+        if (!vertices.contains(from)) {
+            throw NoSuchVertexException(from.name)
+        } else if (!vertices.contains(to)) {
+            throw NoSuchVertexException(to.name)
+        }
+
+        return from.outcomingEdges.find { it.to.id == to.id }
     }
 
     // Returns an existing vertex or inserts a new one if a vertex with such a name didn't exist
@@ -274,11 +328,11 @@ class RenderableGraph : Graph() {
     // Returns the color of the given edge
     // If no such edge exists, returns null
     private fun getEdgeColor(from: Vertex, to: Vertex): Color? {
-        return getEdge(from, to)?.color
+        return getOutcomingEdge(from, to)?.color
     }
 
     // Sets the color of an edge in one side
     private fun setOneSideEdgeColor(from: Vertex, to: Vertex, color: Color) {
-        getEdge(from, to)?.also { it.color = color } ?: throw NoSuchEdgeException(from.name, to.name)
+        getOutcomingEdge(from, to)?.also { it.color = color } ?: throw NoSuchEdgeException(from.name, to.name)
     }
 }

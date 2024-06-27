@@ -10,7 +10,7 @@ package graph.layout
 
 import graph.RenderableGraph
 import graph.Vertex
-import java.util.TreeSet
+import java.util.*
 
 abstract class Layout {
     abstract fun positionVertices(renderableGraph: RenderableGraph)

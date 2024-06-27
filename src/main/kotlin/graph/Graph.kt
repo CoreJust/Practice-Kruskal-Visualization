@@ -9,12 +9,27 @@ package graph
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import java.util.TreeSet
+import java.util.*
 import kotlin.collections.ArrayList
 
 open class Graph {
     var vertices: TreeSet<Vertex> = TreeSet()
         internal set
+
+    // A property to get graph's edges in a single list
+    val edges: ArrayList<Edge>
+        get() {
+            val result: ArrayList<Edge> = arrayListOf()
+            for (vertex in vertices) {
+                for (edge in vertex.outcomingEdges) {
+                    if (edge.to.id > vertex.id) {
+                        result.add(Edge(vertex, edge.to, edge.weight))
+                    }
+                }
+            }
+
+            return result
+        }
 
     private var vertexIdCounter = 0 // Allows to give unique IDs to each vertex
 
@@ -37,12 +52,12 @@ open class Graph {
                     var i = stack.last().second
 
                     while (true) {
-                        if (i >= currentVertex.edges.size) {
+                        if (i >= currentVertex.outcomingEdges.size) {
                             stack.removeLast()
                             break
                         }
 
-                        val adjacentVertex = currentVertex.edges[i].to
+                        val adjacentVertex = currentVertex.outcomingEdges[i].to
                         if (vertexComponent[adjacentVertex.id] == -1) { // Found adjacent vertex that is still not in the component
                             stack[stack.size - 1] = Pair(currentVertex, i + 1)
                             stack.add(Pair(adjacentVertex, 0))
@@ -81,23 +96,23 @@ open class Graph {
     protected fun deleteVertex(vertex: Vertex) {
         assert(vertices.contains(vertex))
 
-        for (edge in vertex.edges) {
-            edge.to.edges.removeIf { it.to.id == vertex.id }
+        for (edge in vertex.outcomingEdges) {
+            edge.to.outcomingEdges.removeIf { it.to.id == vertex.id }
         }
 
-        vertex.edges.clear()
+        vertex.outcomingEdges.clear()
         vertices.remove(vertex)
     }
 
     // Adds an edge to the graph
     protected fun addEdge(from: Vertex, to: Vertex, weight: Int, color: Color) {
-        from.edges.add(Edge(to, weight, color))
-        to.edges.add(Edge(from, weight, color))
+        from.outcomingEdges.add(OutcomingEdge(to, weight, color))
+        to.outcomingEdges.add(OutcomingEdge(from, weight, color))
     }
 
     // Removes an edge from the graph
     protected fun deleteEdge(from: Vertex, to: Vertex) {
-        from.edges.removeIf { it.to.id == to.id }
-        to.edges.removeIf { it.to.id == from.id }
+        from.outcomingEdges.removeIf { it.to.id == to.id }
+        to.outcomingEdges.removeIf { it.to.id == from.id }
     }
 }

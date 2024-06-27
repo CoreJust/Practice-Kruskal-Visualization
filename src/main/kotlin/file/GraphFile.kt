@@ -15,7 +15,7 @@ interface GraphFile {
     fun saveGraph(graph: RenderableGraph)
 }
 
-fun openGraphFile(file: File): GraphFile = when(file.extension) {
+fun openGraphFile(file: File): GraphFile = when (file.extension) {
     "tgf" -> TGFGraphFile(file)
     else -> throw UnsupportedGraphFormatException(file.extension)
 }

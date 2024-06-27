@@ -29,10 +29,14 @@ class CircleLayout(private val radius: Float = 0f, private val separateComponent
             if (components.size > 1) {
                 val areas = computeComponentAreas(components.map { it.size.toFloat() })
                 for (i in areas.indices) {
-                    positionVerticesInSingleCircle(components[i], areas[i].first, computeActualRadius(radius, areas[i].second, components[i].size))
+                    positionVerticesInSingleCircle(
+                        components[i],
+                        areas[i].first,
+                        computeActualRadius(radius, areas[i].second, components[i].size)
+                    )
                 }
 
-                return;
+                return
             }
         }
 
@@ -42,8 +46,8 @@ class CircleLayout(private val radius: Float = 0f, private val separateComponent
     // Does the actual positioning within a predefined circle
     private fun positionVerticesInSingleCircle(vertices: Set<Vertex>, center: Offset, radius: Float) {
         if (vertices.size == 1) {
-            vertices.first().position = center;
-            return;
+            vertices.first().position = center
+            return
         }
 
         val step = 2 * Math.PI / vertices.size
@@ -90,7 +94,8 @@ class CircleLayout(private val radius: Float = 0f, private val separateComponent
 
     // Auxiliary function that calculates the actual circle radius based on the parameter given and area size
     private fun computeActualRadius(originalRadius: Float, areaSize: Float = 1f, verticesCount: Int = 1): Float {
-        val smallComponentModifier = if (verticesCount == 2) 0.85f else 1f // So that components of 2 vertices are rendered correctly
+        val smallComponentModifier =
+            if (verticesCount == 2) 0.85f else 1f // So that components of 2 vertices are rendered correctly
         if (originalRadius == 0f) {
             return areaSize * 0.45f * smallComponentModifier
         } else {

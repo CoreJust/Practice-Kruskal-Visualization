@@ -10,7 +10,12 @@ import androidx.compose.ui.awt.ComposeWindow
 import java.awt.FileDialog
 import java.io.File
 
-fun FileDialog(window: ComposeWindow, title: String = "Choose a file", allowedExtensions: List<String>, mode: Int): File {
+fun FileDialog(
+    window: ComposeWindow,
+    title: String = "Choose a file",
+    allowedExtensions: List<String>,
+    mode: Int
+): File {
     var result: File? = null
     while (result == null) {
         result = FileDialog(window, title, mode).apply {

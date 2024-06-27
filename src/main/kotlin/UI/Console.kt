@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import graph.Graph
 import graph.RenderableGraph
 import graph.layout.CircleLayout
 
@@ -51,7 +53,7 @@ class Console {
 fun RowScope.ConsoleUI(isEditMode: Boolean, onGraphChange: (RenderableGraph) -> Unit) {
     Console.setEditMode(isEditMode)
 
-    Column (
+    Column(
         modifier = Modifier.fillMaxHeight().weight(1f)
     ) {
         OutlinedTextField(
@@ -72,7 +74,7 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onGraphChange: (RenderableGraph) -> 
                     when (cmd[0]) {
                         "v", "vertex" ->
                             if (cmd.size >= 2) {
-                                val vertex = renderableGraph.addVertex(cmd[1])
+                                renderableGraph.addVertex(cmd[1])
                             }
 
                         "e", "edge" ->
@@ -89,8 +91,8 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onGraphChange: (RenderableGraph) -> 
                 Text("Execute")
             }
         } else {
-            Row (modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterHorizontally)) {
-                Box (modifier = Modifier.fillMaxHeight().weight(1f)) {
+            Row(modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterHorizontally)) {
+                Box(modifier = Modifier.fillMaxHeight().weight(1f)) {
                     Button(onClick = {
 
                     }, modifier = Modifier.fillMaxSize()) {
@@ -98,7 +100,7 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onGraphChange: (RenderableGraph) -> 
                     }
                 }
 
-                Box (modifier = Modifier.fillMaxHeight().weight(2f).padding(horizontal = 10.dp)) {
+                Box(modifier = Modifier.fillMaxHeight().weight(2f).padding(horizontal = 10.dp)) {
                     Button(onClick = {
 
                     }, modifier = Modifier.fillMaxSize()) {
@@ -106,7 +108,7 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onGraphChange: (RenderableGraph) -> 
                     }
                 }
 
-                Box (modifier = Modifier.fillMaxHeight().weight(1f)) {
+                Box(modifier = Modifier.fillMaxHeight().weight(1f)) {
                     Button(onClick = {
 
                     }, modifier = Modifier.fillMaxSize()) {
