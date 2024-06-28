@@ -16,7 +16,7 @@ abstract class Layout {
     abstract fun positionVertices(renderableGraph: RenderableGraph)
 
     // A simple auxiliary function that resets all vertex positions
-    fun resetVertexPositions(vertices: TreeSet<Vertex>) {
+    internal fun resetVertexPositions(vertices: TreeSet<Vertex>) {
         vertices.forEach { it.position = null }
     }
 }

@@ -62,14 +62,14 @@ class GraphView {
             graphRenderTrigger += 1
         }
 
-        fun handleMouseWheelScroll(delta: Float) {
+        internal fun handleMouseWheelScroll(delta: Float) {
             transformScale *= exp(delta * 0.1f)
             transformScale = Math.clamp(transformScale, 0.025f, 3f)
             graphRenderTrigger += 1
         }
 
         // Called upon any mouse button press in graph view when in edit mode
-        fun handleMousePress(buttons: PointerButtons, originalMousePosition: Offset) {
+        internal fun handleMousePress(buttons: PointerButtons, originalMousePosition: Offset) {
             if (buttons.isTertiaryPressed) { // If mouse wheel is pressed, return to the original position
                 transformScale = 1f
                 transformOffset = Offset(0f, 0f)
