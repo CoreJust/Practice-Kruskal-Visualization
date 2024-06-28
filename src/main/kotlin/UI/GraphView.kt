@@ -8,7 +8,6 @@
 package UI
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
@@ -158,7 +157,6 @@ class GraphView {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RowScope.GraphViewUI(isEditMode: Boolean) {
     var alertMessage by remember { mutableStateOf("") }
