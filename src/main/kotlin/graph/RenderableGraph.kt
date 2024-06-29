@@ -107,8 +107,8 @@ class RenderableGraph : Graph() {
                 )
 
                 // And finally, vertex names
-                val nameToDraw = vertex.name.substringBefore(' ') // We drop the part of the name that comes after the first _
-                if (nameToDraw.isNotEmpty()) { // Ignore vertex names that begin with _
+                val nameToDraw = vertex.name.substringBefore('$') // We drop the part of the name that comes after the first $
+                if (nameToDraw.isNotEmpty()) { // Ignore vertex names that begin with $
                     val vertexTextStyle = TextStyle.Default.copy(
                         color = TEXT_COLOR,
                         fontSize = VERTEX_NAME_FONT_SIZE.sp,
@@ -184,6 +184,42 @@ class RenderableGraph : Graph() {
 
         setOneSideEdgeColor(from, to, color ?: DEFAULT_COLOR)
         setOneSideEdgeColor(to, from, color ?: DEFAULT_COLOR)
+    }
+
+    // Allows to give a vertex a new name
+    fun renameVertex(vertex: Vertex, newName: String) {
+        if (!vertices.contains(vertex)) {
+            throw NoSuchVertexException(vertex.name)
+        }
+
+        if (vertex.name == newName) {
+            return // Nothing to be done
+        }
+
+        if (verticesByName.containsKey(newName)) {
+            throw VertexAlreadyExistsException(newName)
+        }
+
+        verticesByName.remove(vertex.name)
+        verticesByName.put(newName, vertex)
+        vertex.name = newName
+    }
+
+    // Allows to give an edge a new weight
+    fun setEdgeWeight(edge: Edge, newWeight: Int) {
+        setEdgeWeight(edge.first, edge.second, newWeight)
+    }
+
+    // Allows to give an edge a new weight
+    fun setEdgeWeight(from: Vertex, to: Vertex, newWeight: Int) {
+        if (!vertices.contains(from)) {
+            throw NoSuchVertexException(from.name)
+        } else if (!vertices.contains(to)) {
+            throw NoSuchVertexException(to.name)
+        }
+
+        setOneSideEdgeWeight(from, to, newWeight)
+        setOneSideEdgeWeight(to, from, newWeight)
     }
 
     // Returns a vertex at specified position (or null, if there is no such vertex)
@@ -334,5 +370,10 @@ class RenderableGraph : Graph() {
     // Sets the color of an edge in one side
     private fun setOneSideEdgeColor(from: Vertex, to: Vertex, color: Color) {
         getOutcomingEdge(from, to)?.also { it.color = color } ?: throw NoSuchEdgeException(from.name, to.name)
+    }
+
+    // Sets the weight of an edge in one side
+    private fun setOneSideEdgeWeight(from: Vertex, to: Vertex, newWeight: Int) {
+        getOutcomingEdge(from, to)?.also { it.weight = newWeight } ?: throw NoSuchEdgeException(from.name, to.name)
     }
 }

@@ -9,7 +9,6 @@ package UI
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -35,21 +34,28 @@ class GraphView {
         internal var renderableGraph = RenderableGraph()
         internal var graphRenderTrigger by mutableIntStateOf(0) // Used to trigger graph redrawing
 
+        internal val alertDialogHelper = AlertDialogHelper()
+        internal val vertexNameInputDialogHelper = SingleFieldInputDialogHelper()
+        internal val edgeWeightInputDialogHelper = SingleFieldInputDialogHelper()
+
         internal var isEditMode = true // Is it the edit mode at all or algorithm mode
-        internal var isVertexEditMode by mutableStateOf(true) // Otherwise it is edge editing
+        internal var isRenameMode = false // When we are in the edit mode, we can press shift and rename vertices / edges
 
         // The current 1D size of the graph view area, allows to convert internal graph coordinates
         // into graph view coordinates and vice versa
         internal var widgetScale = 1f
 
         // The scale and offset of the graph within graph view area
-        internal var transformScale = 1f
-        internal var transformOffset = Offset(0f, 0f)
+        private var transformScale = 1f
+        private var transformOffset = Offset(0f, 0f)
+        private var oldTransformOffset = Offset(0f, 0f)
 
-        internal var wasLMBPressed = false // Monitored from outside, set to false whenever mouse button is released
-        internal var wasRMBPressed = false // Monitored from outside, set to false whenever mouse button is released
+        // The position of the pointer when the corresponding mouse button was pressed
+        private var LMBClickPosition: Offset? = null
+        private var RMBClickPosition: Offset? = null
 
-        private var activeVertex: Vertex? = null
+        private var activeVertex: Vertex? = null // First chosen vertex in edge mode
+        private var holdVertex: Vertex? = null // Used when moving a vertex
 
         // Calls the subsequent functions to render the graph
         fun render(drawScope: DrawScope, textMeasurer: TextMeasurer) {
@@ -59,90 +65,195 @@ class GraphView {
         // Automatically repositions all the vertices according to the current layout
         fun repositionVertices() {
             renderableGraph.positionVertices(CircleLayout())
-            graphRenderTrigger += 1
+            rerenderGraph()
         }
 
+        // Callback function to be used externally where graph loading occurs
+        fun onGraphChange(renderableGraph: RenderableGraph) {
+            this.renderableGraph = renderableGraph
+            rerenderGraph()
+        }
+
+        // Called upon scrolling mouse wheel
         internal fun handleMouseWheelScroll(delta: Float) {
             transformScale *= exp(delta * 0.1f)
             transformScale = Math.clamp(transformScale, 0.025f, 3f)
-            graphRenderTrigger += 1
+            rerenderGraph()
         }
 
-        // Called upon any mouse button press in graph view when in edit mode
+        // Called upon any mouse button press in graph view
         internal fun handleMousePress(buttons: PointerButtons, originalMousePosition: Offset) {
-            if (buttons.isTertiaryPressed) { // If mouse wheel is pressed, return to the original position
-                transformScale = 1f
-                transformOffset = Offset(0f, 0f)
-                graphRenderTrigger += 1
+            val position = (originalMousePosition / widgetScale - Offset(0.5f, 0.5f)) / transformScale + Offset(
+                0.5f,
+                0.5f
+            ) - transformOffset
+            val clickedVertex = renderableGraph.getVertexAtPosition(position)
+
+            if (buttons.isPrimaryPressed && LMBClickPosition == null) {
+                LMBClickPosition = position
+                oldTransformOffset = transformOffset
+
+                // On left mouse button click
+                if (clickedVertex != null) { // Move the vertex if it is to be dragged
+                    holdVertex = clickedVertex
+                }
+            }
+
+            if (buttons.isSecondaryPressed && RMBClickPosition == null) {
+                RMBClickPosition = position
+            }
+        }
+
+        // Called upon mouse being released
+        internal fun handleMouseRelease(buttons: PointerButtons, originalMousePosition: Offset) {
+            fun isMouseButtonClickApplicable(clickPosition: Offset?, releasePosition: Offset): Boolean { // Checks if it can be considered a click rather than drag
+                val transformDistance = (transformOffset - oldTransformOffset).getDistance()
+                val mouseDistance = ((clickPosition ?: return false) - releasePosition).getDistance()
+                return mouseDistance + transformDistance < 0.01f
             }
 
             val position = (originalMousePosition / widgetScale - Offset(0.5f, 0.5f)) / transformScale + Offset(
                 0.5f,
                 0.5f
             ) - transformOffset
-            if (isVertexEditMode) {
-                handleMousePressInVertexMode(buttons, position)
-            } else {
-                handleMousePressInEdgeMode(buttons, position)
-            }
-        }
 
-        // Callback function to be used externally where graph loading occurs
-        fun onGraphChange(renderableGraph: RenderableGraph) {
-            this.renderableGraph = renderableGraph
-            graphRenderTrigger += 1
-        }
+            val clickedVertex = renderableGraph.getVertexAtPosition(position)
+            val isLMBReleaseApplicable = !buttons.isPrimaryPressed && isMouseButtonClickApplicable(LMBClickPosition, position)
+            val isRMBReleaseApplicable = !buttons.isSecondaryPressed && isMouseButtonClickApplicable(RMBClickPosition, position)
 
-        // Handles user mouse press in graph view when in vertex edit mode
-        private fun handleMousePressInVertexMode(buttons: PointerButtons, position: Offset) {
-            if (buttons.isPrimaryPressed && !wasLMBPressed) { // On left mouse button click a new vertex is being added
-                val vertex = renderableGraph.addVertex(renderableGraph.makeUpVertexName(), position)
-                setActiveVertex(vertex)
-                wasLMBPressed = true // So that we don't insert many vertices at once
-            }
-
-            if (buttons.isSecondaryPressed && !wasRMBPressed) { // On right mouse button click a vertex is getting removed
-                renderableGraph
-                    .getVertexAtPosition(position)
-                    ?.also {
-                        renderableGraph.removeVertex(it)
-                        if (it.id == activeVertex?.id) {
-                            activeVertex = null
+            if (isEditMode) {
+                if (isRMBReleaseApplicable && clickedVertex != null) { // On right mouse button click a vertex is getting removed
+                    if (activeVertex == null || clickedVertex.id == activeVertex?.id) {
+                        renderableGraph.removeVertex(clickedVertex) // Remove a vertex upon RMB click
+                        if (clickedVertex.id == activeVertex?.id) {
+                            activeVertex = null // This vertex was just deleted and we cannot just call setActiveVertex because it is already non-existent
+                            rerenderGraph()
                         } else {
+                            setActiveVertex(null) // Reset the active vertex when deleting another vertex
+                        }
+                    } else {
+                        setActiveVertex(null) // Reset active vertex when clicking RMB on an empty place
+                    }
+                }
+
+                if (clickedVertex == null) { // If there is no vertex in the place of the click, a new vertex is being added
+                    if (isLMBReleaseApplicable) {
+                        handleVertexCreation(position)
+                        rerenderGraph()
+                    }
+                } else {
+                    if (activeVertex == null) {
+                        if (isLMBReleaseApplicable) { // First click with LMB just chooses the first vertex
+                            if (isRenameMode) { // Or we rename the vertex if the shift is applied
+                                handleVertexRenaming(clickedVertex)
+                            } else {
+                                setActiveVertex(clickedVertex)
+                            }
+                        }
+                    } else if (clickedVertex.id != activeVertex!!.id) {
+                        if (isLMBReleaseApplicable) { // On left mouse button click a new edge is being added
+                            if (isRenameMode) {
+                                handleEdgeRenaming(activeVertex!!, clickedVertex)
+                            } else {
+                                handleEdgeCreation(activeVertex!!, clickedVertex)
+                            }
+
+                            setActiveVertex(null)
+                        }
+
+                        if (isRMBReleaseApplicable) { // On right mouse button click an edge is getting removed
+                            renderableGraph.removeEdge(activeVertex!!, clickedVertex)
                             setActiveVertex(null)
                         }
                     }
-                graphRenderTrigger += 1
-                wasRMBPressed = true
+                }
+            }
+
+            // Resetting the mouse button states upon button release
+            if (!buttons.isPrimaryPressed) LMBClickPosition = null
+            if (!buttons.isSecondaryPressed) RMBClickPosition = null
+            if (LMBClickPosition == null) { // Release dragged vertex on left mouse button release
+                holdVertex = null
             }
         }
 
-        // Handles user mouse press in graph view when in edge edit mode
-        private fun handleMousePressInEdgeMode(buttons: PointerButtons, position: Offset) {
-            val clickedVertex = renderableGraph.getVertexAtPosition(position) ?: return
-            if (activeVertex == null) { // First click just chooses the first vertex no matter the button
-                setActiveVertex(clickedVertex)
-            } else if (clickedVertex.id != activeVertex!!.id) {
-                if (buttons.isPrimaryPressed && !wasLMBPressed) { // On left mouse button click a new edge is being added
-                    renderableGraph.addEdge(activeVertex!!, clickedVertex, 1)
-                    setActiveVertex(null)
-                    wasLMBPressed = true // So that we don't insert many vertices at once
-                }
+        // Called upon mouse being moved
+        internal fun handleMouseMove(mouseOffset: Offset) {
+            val offset = mouseOffset / (widgetScale * transformScale)
 
-                if (buttons.isSecondaryPressed && !wasRMBPressed) { // On right mouse button click an edge is getting removed
-                    renderableGraph.removeEdge(activeVertex!!, clickedVertex)
-                    setActiveVertex(null)
-                    wasRMBPressed = true
-                }
+            if (holdVertex != null) {
+                holdVertex!!.position = holdVertex!!.position?.plus(offset) // Move the vertex along the mouse pointer
+            } else if (LMBClickPosition != null) {
+                transformOffset += offset // Move the view
             }
+
+            rerenderGraph()
         }
 
-        // Switches the graph view into vertex editing or into edge editing
-        internal fun changeVertexEditModeTo(value: Boolean) {
-            if (value != isVertexEditMode) {
-                setActiveVertex(null)
-                isVertexEditMode = value
-            }
+        // Handles the case when a new vertex is being created by LMB click
+        private fun handleVertexCreation(position: Offset) {
+            vertexNameInputDialogHelper.open(
+                title = "Enter vertex name",
+                label = "Vertex name",
+                defaultText = renderableGraph.makeUpVertexName(),
+                onConfirmation = {
+                    renderableGraph.addVertex(it, position)
+                    rerenderGraph()
+                }
+            )
+        }
+
+        // Handles the case when a new edge is being created by LMB click
+        private fun handleEdgeCreation(from: Vertex, to: Vertex) {
+            edgeWeightInputDialogHelper.open(
+                title = "Enter edge weight",
+                label = "Edge weight",
+                defaultText = "1",
+                onConfirmation = {
+                    val newWeight = it.toIntOrNull()
+                    if (newWeight == null) {
+                        alertDialogHelper.open(
+                            title = "Error",
+                            message = "You entered \"$it\", but a number was expected"
+                        )
+                    } else {
+                        renderableGraph.addEdge(from, to, newWeight)
+                        rerenderGraph()
+                    }
+                }
+            )
+        }
+
+        // Handles the case of a vertex being renamed
+        private fun handleVertexRenaming(vertex: Vertex) {
+            vertexNameInputDialogHelper.open(
+                title = "Enter new vertex name",
+                label = "Vertex name",
+                onConfirmation = {
+                    renderableGraph.renameVertex(vertex, it)
+                    rerenderGraph()
+                }
+            )
+        }
+
+        // Handles the case of an edge being renamed
+        private fun handleEdgeRenaming(from: Vertex, to: Vertex) {
+            edgeWeightInputDialogHelper.open(
+                title = "Enter new edge weight",
+                label = "Edge weight",
+                onConfirmation = {
+                    val newWeight = it.toIntOrNull()
+                    if (newWeight == null) {
+                        alertDialogHelper.open(
+                            title = "Error",
+                            message = "You entered \"$it\", but a number was expected"
+                        )
+                    } else {
+                        renderableGraph.setEdgeWeight(from, to, newWeight)
+                        rerenderGraph()
+                    }
+                }
+            )
         }
 
         // Sets the currently active vertex and changes its color
@@ -151,8 +262,13 @@ class GraphView {
                 activeVertex?.also { renderableGraph.setVertexColor(it, RenderableGraph.DEFAULT_COLOR) }
                 vertex?.also { renderableGraph.setVertexColor(it, RenderableGraph.ACTIVE_COLOR) }
                 activeVertex = vertex
-                graphRenderTrigger += 1
+                rerenderGraph()
             }
+        }
+
+        // Called when the graph is required to be re-rendered
+        private fun rerenderGraph() {
+            graphRenderTrigger += 1
         }
     }
 }
@@ -176,25 +292,19 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
                     awaitPointerEventScope {
                         while (true) {
                             val event = awaitPointerEvent()
-                            if (!GraphView.isEditMode) continue
-
                             val mousePosition = event.changes.first().position
+                            val mouseOffset = event.changes.map { it.positionChange() }.reduce { acc, offset -> acc + offset }
+                            val wheelDelta = event.changes.map { it.scrollDelta.let { it.x + it.y } }.sum()
 
                             event.changes.forEach { e -> e.consume() }
-
-                            if (event.type == PointerEventType.Release) {
-                                GraphView.wasLMBPressed = event.buttons.isPrimaryPressed
-                                GraphView.wasRMBPressed = event.buttons.isSecondaryPressed
-                            }
+                            GraphView.isRenameMode = event.keyboardModifiers.isShiftPressed
 
                             try {
-                                if (event.type == PointerEventType.Press) {
-                                    GraphView.handleMousePress(event.buttons, mousePosition)
-                                }
-
-                                if (event.type == PointerEventType.Scroll) {
-                                    val wheelDelta = event.changes.map { it.scrollDelta.let { it.x + it.y } }.sum()
-                                    GraphView.handleMouseWheelScroll(wheelDelta)
+                                when (event.type) {
+                                    PointerEventType.Press -> GraphView.handleMousePress(event.buttons, mousePosition)
+                                    PointerEventType.Release -> GraphView.handleMouseRelease(event.buttons, mousePosition)
+                                    PointerEventType.Scroll -> GraphView.handleMouseWheelScroll(wheelDelta)
+                                    PointerEventType.Move -> GraphView.handleMouseMove(mouseOffset)
                                 }
                             } catch (e: GraphException) {
                                 alertMessage = e.message ?: ""
@@ -203,7 +313,10 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
                     }
                 }
         ) {
-            if (GraphView.graphRenderTrigger < 0) return@Canvas
+            if (GraphView.graphRenderTrigger < 0) { // So that the graph gets redrawn on its change
+                return@Canvas
+            }
+
             GraphView.widgetScale = minOf(size.height, size.width)
             GraphView.render(this, textMeasurer)
         }
@@ -214,21 +327,6 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
         ) {
             val buttonTextStyle = TextStyle.Default.copy(fontWeight = FontWeight.Bold, fontSize = 32.sp)
             val buttonPadding = 7.dp
-            var editModeText by remember { mutableStateOf("V") }
-
-            if (isEditMode) {
-                Button(onClick = {
-                    if (editModeText == "V") {
-                        GraphView.changeVertexEditModeTo(false)
-                        editModeText = "E"
-                    } else {
-                        GraphView.changeVertexEditModeTo(true)
-                        editModeText = "V"
-                    }
-                }) {
-                    Text(editModeText, style = buttonTextStyle)
-                }
-            }
 
             Button(onClick = {
                 GraphView.repositionVertices()
@@ -260,14 +358,15 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
 
     // The alert in case something went wrong while editing the graph
     if (alertMessage.isNotEmpty()) {
-        AlertDialog(
-            text = { Text(alertMessage) },
-            title = { Text("Graph exception") },
-            onDismissRequest = { alertMessage = "" },
-            confirmButton = {
-                Button({ alertMessage = "" }) {
-                    Text("Ok")
-                }
-            })
+        AlertDialogUI(
+            title = "Graph exception",
+            message = alertMessage,
+            onDismiss = { alertMessage = "" }
+        )
     }
+
+    // Calling these functions here allow the helpers to be shown
+    GraphView.alertDialogHelper.show()
+    GraphView.vertexNameInputDialogHelper.show()
+    GraphView.edgeWeightInputDialogHelper.show()
 }
