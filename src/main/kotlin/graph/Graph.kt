@@ -10,7 +10,6 @@ package graph
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import java.util.*
-import kotlin.collections.ArrayList
 
 open class Graph {
     var vertices: TreeSet<Vertex> = TreeSet()

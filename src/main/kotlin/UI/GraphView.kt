@@ -8,13 +8,19 @@
 package UI
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.text.TextMeasurer
@@ -75,18 +81,21 @@ class GraphView {
         }
 
         // Called upon scrolling mouse wheel
-        internal fun handleMouseWheelScroll(delta: Float) {
-            transformScale *= exp(delta * 0.1f)
-            transformScale = Math.clamp(transformScale, 0.025f, 3f)
-            rerenderGraph()
+        internal fun handleMouseWheelScroll(delta: Float, originalMousePosition: Offset) {
+            val newTransformScale = Math.clamp(transformScale * exp(delta * 0.1f), 0.025f, 4f)
+            if (newTransformScale != transformScale) {
+                val position = getRelativeMousePosition(originalMousePosition)
+                val screenCenter = Offset(0.5f, 0.5f) - transformOffset
+
+                transformOffset -= (position - screenCenter) * (newTransformScale / transformScale - 1)
+                transformScale = newTransformScale
+                rerenderGraph()
+            }
         }
 
         // Called upon any mouse button press in graph view
         internal fun handleMousePress(buttons: PointerButtons, originalMousePosition: Offset) {
-            val position = (originalMousePosition / widgetScale - Offset(0.5f, 0.5f)) / transformScale + Offset(
-                0.5f,
-                0.5f
-            ) - transformOffset
+            val position = getRelativeMousePosition(originalMousePosition)
             val clickedVertex = renderableGraph.getVertexAtPosition(position)
 
             if (buttons.isPrimaryPressed && LMBClickPosition == null) {
@@ -112,11 +121,7 @@ class GraphView {
                 return mouseDistance + transformDistance < 0.01f
             }
 
-            val position = (originalMousePosition / widgetScale - Offset(0.5f, 0.5f)) / transformScale + Offset(
-                0.5f,
-                0.5f
-            ) - transformOffset
-
+            val position = getRelativeMousePosition(originalMousePosition)
             val clickedVertex = renderableGraph.getVertexAtPosition(position)
             val isLMBReleaseApplicable = !buttons.isPrimaryPressed && isMouseButtonClickApplicable(LMBClickPosition, position)
             val isRMBReleaseApplicable = !buttons.isSecondaryPressed && isMouseButtonClickApplicable(RMBClickPosition, position)
@@ -242,6 +247,13 @@ class GraphView {
                 title = "Enter new edge weight",
                 label = "Edge weight",
                 onConfirmation = {
+                    if (renderableGraph.getOutcomingEdge(from, to) == null) {
+                        alertDialogHelper.open(
+                            title = "Error",
+                            message = "No such edge exists: (${from.name} - ${to.name})"
+                        )
+                    }
+
                     val newWeight = it.toIntOrNull()
                     if (newWeight == null) {
                         alertDialogHelper.open(
@@ -270,24 +282,46 @@ class GraphView {
         private fun rerenderGraph() {
             graphRenderTrigger += 1
         }
+
+        // Takes the mouse coordinates in the view and returns its position in the field,
+        // (or in other words, the coordinates in the graph) taking into account current scale
+        // and translation
+        private fun getRelativeMousePosition(originalMousePosition: Offset): Offset {
+            // Since the original graph field is in the bounds of [0; 1], it must be normalized first
+            val normalizedPosition = originalMousePosition / widgetScale
+
+            // Now the position is scaled around the point (0.5, 0.5)
+            val scaledPosition = normalizedPosition - Offset(0.5f, 0.5f) / transformScale + Offset(0.5f, 0.5f)
+
+            // And finally we apply the translation
+            val translatedPosition = scaledPosition - transformOffset
+
+            return translatedPosition
+        }
     }
 }
 
 @Composable
 fun RowScope.GraphViewUI(isEditMode: Boolean) {
     var alertMessage by remember { mutableStateOf("") }
+    val actionConfirmationDialogHelper by remember { mutableStateOf(ConfirmationDialogHelper()) }
 
     GraphView.isEditMode = isEditMode
 
-    Row(
-        modifier = Modifier.fillMaxHeight().weight(2f).padding(horizontal = 10.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .weight(2f)
+            .padding(horizontal = 10.dp)
     ) {
         val textMeasurer = rememberTextMeasurer()
+        val canvasOutlineBrush = Brush.linearGradient(List(8) { index -> if (index % 2 == 0) Color.Blue else Color.Magenta })
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
-                .weight(10f)
                 .clipToBounds()
+                .border(3.dp, canvasOutlineBrush, RoundedCornerShape(15.dp))
+                .padding(7.dp)
                 .pointerInput(Unit) { // Processing user mouse input within GraphView
                     awaitPointerEventScope {
                         while (true) {
@@ -303,7 +337,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
                                 when (event.type) {
                                     PointerEventType.Press -> GraphView.handleMousePress(event.buttons, mousePosition)
                                     PointerEventType.Release -> GraphView.handleMouseRelease(event.buttons, mousePosition)
-                                    PointerEventType.Scroll -> GraphView.handleMouseWheelScroll(wheelDelta)
+                                    PointerEventType.Scroll -> GraphView.handleMouseWheelScroll(wheelDelta, mousePosition)
                                     PointerEventType.Move -> GraphView.handleMouseMove(mouseOffset)
                                 }
                             } catch (e: GraphException) {
@@ -323,34 +357,44 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
 
         // The menu to the right of GraphView
         Column(
-            modifier = Modifier.fillMaxHeight().weight(1f)
+            modifier = Modifier
+                .fillMaxHeight()
+                .align(Alignment.TopEnd)
+                .padding(9.dp)
         ) {
             val buttonTextStyle = TextStyle.Default.copy(fontWeight = FontWeight.Bold, fontSize = 32.sp)
-            val buttonPadding = 7.dp
+            val buttonPadding = 5.dp
+            val buttonModifier = Modifier
+                .padding(buttonPadding)
+                .clip(shape = RoundedCornerShape(15.dp))
 
             Button(onClick = {
                 GraphView.repositionVertices()
-            }, modifier = Modifier.padding(vertical = buttonPadding)) {
+            }, modifier = buttonModifier) {
                 Text("A", style = buttonTextStyle)
             }
 
             if (isEditMode) {
                 Button(onClick = {
-
-                }) {
+                    actionConfirmationDialogHelper.open(
+                        title = "Confirm action",
+                        message = "Are you sure you want to delete the current graph?",
+                        onConfirmation = { GraphView.onGraphChange(RenderableGraph()) }
+                    )
+                }, modifier = buttonModifier) {
                     Text("C", style = buttonTextStyle)
                 }
 
                 Button(onClick = {
 
-                }, modifier = Modifier.padding(vertical = buttonPadding)) {
+                }, modifier = buttonModifier) {
                     Text("I", style = buttonTextStyle)
                 }
             }
 
             Button(onClick = {
 
-            }) {
+            }, modifier = buttonModifier) {
                 Text("?", style = buttonTextStyle)
             }
         }
@@ -369,4 +413,6 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
     GraphView.alertDialogHelper.show()
     GraphView.vertexNameInputDialogHelper.show()
     GraphView.edgeWeightInputDialogHelper.show()
+
+    actionConfirmationDialogHelper.show()
 }

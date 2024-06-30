@@ -8,15 +8,14 @@
 package UI
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import graph.RenderableGraph
 import graph.layout.CircleLayout
@@ -50,21 +49,43 @@ class Console {
 
 // The composable function that displays the actual console
 @Composable
-fun RowScope.ConsoleUI(isEditMode: Boolean, onGraphChange: (RenderableGraph) -> Unit) {
+fun RowScope.ConsoleUI(isEditMode: Boolean) {
+    val algorithmAlertDialogHelper by remember { mutableStateOf(AlertDialogHelper()) }
+    val algorithmRunner by remember { mutableStateOf(AlgorithmRunner(algorithmAlertDialogHelper)) }
+
+    // Reloading the algorithm runner if necessary
+    if (isEditMode != Console.lastEditMode) {
+        if (!isEditMode) {
+            algorithmRunner.initAlgorithm()
+        } else {
+            algorithmRunner.destroyAlgorithm()
+        }
+    }
+
+    // Changing console mode
     Console.setEditMode(isEditMode)
 
     Column(
-        modifier = Modifier.fillMaxHeight().weight(1f)
+        modifier = Modifier
+            .fillMaxHeight()
+            .weight(1f)
+            .padding(start = 10.dp)
     ) {
         OutlinedTextField(
             value = Console.text,
             onValueChange = { if (isEditMode) Console.text = it },
-            modifier = Modifier.fillMaxWidth().weight(10f),
             label = { Text("Console") },
             singleLine = false,
-            readOnly = !isEditMode
+            readOnly = !isEditMode,
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(10f)
+                .padding(bottom = 4.dp)
         )
 
+        val buttonRoundness = 9.dp
+        val bottomButtonPadding = 6.dp
         if (isEditMode) {
             Button(onClick = {
                 val renderableGraph = RenderableGraph()
@@ -86,16 +107,25 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onGraphChange: (RenderableGraph) -> 
                 }
 
                 renderableGraph.positionVertices(CircleLayout())
-                onGraphChange(renderableGraph)
-            }, modifier = Modifier.fillMaxWidth().weight(1f)) {
+                GraphView.onGraphChange(renderableGraph)
+            }, modifier = Modifier
+                .padding(bottom = bottomButtonPadding)
+                .clip(shape = RoundedCornerShape(buttonRoundness))
+                .fillMaxWidth()
+                .weight(1f)
+            ) {
                 Text("Execute")
             }
         } else {
             Row(modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterHorizontally)) {
                 Box(modifier = Modifier.fillMaxHeight().weight(1f)) {
                     Button(onClick = {
-
-                    }, modifier = Modifier.fillMaxSize()) {
+                        algorithmRunner.stepBack()
+                    }, modifier = Modifier
+                        .padding(bottom = bottomButtonPadding)
+                        .clip(shape = RoundedCornerShape(topStart = buttonRoundness, bottomStart = buttonRoundness))
+                        .fillMaxSize()
+                    ) {
                         Text("<")
                     }
                 }
@@ -103,19 +133,29 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onGraphChange: (RenderableGraph) -> 
                 Box(modifier = Modifier.fillMaxHeight().weight(2f).padding(horizontal = 10.dp)) {
                     Button(onClick = {
 
-                    }, modifier = Modifier.fillMaxSize()) {
+                    }, modifier = Modifier
+                        .padding(bottom = bottomButtonPadding)
+                        .fillMaxSize()
+                    ) {
                         Text("Run")
                     }
                 }
 
                 Box(modifier = Modifier.fillMaxHeight().weight(1f)) {
                     Button(onClick = {
-
-                    }, modifier = Modifier.fillMaxSize()) {
+                        algorithmRunner.stepForth()
+                    }, modifier = Modifier
+                        .padding(bottom = bottomButtonPadding)
+                        .clip(shape = RoundedCornerShape(topEnd = buttonRoundness, bottomEnd = buttonRoundness))
+                        .fillMaxSize()
+                    ) {
                         Text(">")
                     }
                 }
             }
         }
     }
+
+    // Calling these functions here allow the helpers to be shown
+    algorithmAlertDialogHelper.show()
 }

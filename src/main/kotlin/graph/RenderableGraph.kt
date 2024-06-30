@@ -35,6 +35,14 @@ class RenderableGraph : Graph() {
 
     private var verticesByName: MutableMap<String, Vertex> = mutableMapOf()
 
+    // A property that allows to operate on graph coloring
+    var graphColoring: GraphColoring
+        get() = GraphColoring().loadFromGraph(this)
+        set(coloring) {
+            coloring.applyToGraph(this)
+        }
+
+
     // Does the actual rendering,
     // Must be called from Canvas context.
     fun renderGraph(
@@ -140,6 +148,16 @@ class RenderableGraph : Graph() {
     // Assign positions to all the vertices
     fun positionVertices(layout: Layout) {
         layout.positionVertices(this)
+    }
+
+    // Changes all the colors to the default ones
+    fun resetColors() {
+        for (vertex in vertices) {
+            vertex.color = DEFAULT_COLOR
+            for (outcomingEdge in vertex.outcomingEdges) {
+                outcomingEdge.color = DEFAULT_COLOR
+            }
+        }
     }
 
     // Changes the color of all the vertices with oldColor to newColor

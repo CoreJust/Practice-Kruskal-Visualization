@@ -1,9 +1,9 @@
 package algorithm
 
+import UI.GraphView
+import androidx.compose.ui.graphics.Color
 import graph.Edge
 import graph.RenderableGraph
-import androidx.compose.ui.graphics.Color //добавлено для строки №1
-import UI.GraphView
 import kotlin.math.abs
 
 // Заглушка для класса алгоритма

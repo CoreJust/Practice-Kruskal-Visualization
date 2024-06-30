@@ -88,11 +88,11 @@ fun findMSTWithKruskal(G: Graph): List<Edge> {
 4) Под консолью - кнопки “Шаг назад”, “Авторабота алгоритма”, “Шаг вперед”. При нажатии “Авторабота алгоритма” сама кнопка меняется на “Остановить автоработу”, соседние кнопки на “Быстрее” и “Медленнее”.
 
 
-[![photo-2024-06-29-22-10-05.jpg](https://i.postimg.cc/pdrXFXfH/photo-2024-06-29-22-10-05.jpg)](https://postimg.cc/QBL3LDY4)
+[![photo-2024-06-29-22-10-05.jpg](https://i.postimg.cc/htC3WhFN/photo-2024-06-29-22-10-05.jpg)](https://postimg.cc/pmFBKWLB)
 
 Интерфейс в режиме редактирования.
 
-[![photo-2024-06-27-19-48-16.jpg](https://i.postimg.cc/qR3M3KQq/photo-2024-06-27-19-48-16.jpg)](https://postimg.cc/yg7HqkMC)
+[![photo-2024-06-30-12-58-08.jpg](https://i.postimg.cc/C5HmvxHP/photo-2024-06-30-12-58-08.jpg)](https://postimg.cc/xN8v8YZM)
 
 Интерфейс в режиме работы алгоритма.
 
