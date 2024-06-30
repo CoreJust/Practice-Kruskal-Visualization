@@ -17,5 +17,6 @@ interface GraphFile {
 
 fun openGraphFile(file: File): GraphFile = when (file.extension) {
     "tgf" -> TGFGraphFile(file)
+    "gml" -> GMLGraphFile(file)
     else -> throw UnsupportedGraphFormatException(file.extension)
 }

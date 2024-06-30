@@ -3,7 +3,7 @@
 * Contains the implementation of GraphException class that represents a non-fatal exception
 * that is caused by some graph-specific situation (for example, trying to add a self-loop).
 *
-* Additionally contains some more specific classes that extend the general GraphException class.
+* Additionally, contains some more specific classes that extend the general GraphException class.
 */
 
 package graph

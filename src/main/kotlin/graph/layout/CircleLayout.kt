@@ -12,6 +12,7 @@ import graph.RenderableGraph
 import graph.Vertex
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 /*
 * Parameters:
@@ -36,11 +37,24 @@ class CircleLayout(private val radius: Float = 0f, private val separateComponent
                     )
                 }
 
+                rescaleVertexPositionsIfNecessary(renderableGraph.vertices)
                 return
             }
         }
 
         positionVerticesInSingleCircle(renderableGraph.vertices, Offset(0.5f, 0.5f), computeActualRadius(radius))
+        rescaleVertexPositionsIfNecessary(renderableGraph.vertices)
+    }
+
+    // Scales vertex positions around center for the given scale
+    // if it is necessary due to vertex count being too large
+    private fun rescaleVertexPositionsIfNecessary(vertices: Set<Vertex>) {
+        val rescaleFactor = sqrt(vertices.size.toDouble() / 30).toFloat()
+        if (rescaleFactor > 1) {
+            for (vertex in vertices) {
+                vertex.position = (vertex.position!! - Offset(0.5f, 0.5f)) * rescaleFactor + Offset(0.5f, 0.5f)
+            }
+        }
     }
 
     // Does the actual positioning within a predefined circle

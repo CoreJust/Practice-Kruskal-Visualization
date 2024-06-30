@@ -38,10 +38,7 @@ class RenderableGraph : Graph() {
     // A property that allows to operate on graph coloring
     var graphColoring: GraphColoring
         get() = GraphColoring().loadFromGraph(this)
-        set(coloring) {
-            coloring.applyToGraph(this)
-        }
-
+        set(coloring) = coloring.applyToGraph(this)
 
     // Does the actual rendering,
     // Must be called from Canvas context.

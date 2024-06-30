@@ -12,7 +12,7 @@ import graph.RenderableGraph
 import java.awt.FileDialog
 
 fun GraphSaveDialogUI(window: ComposeWindow, renderableGraph: RenderableGraph) {
-    val allowedExtensions = listOf(".tgf", ".graphml", ".dot", ".gv")
+    val allowedExtensions = listOf(".tgf", ".gml")
     val openedFile = FileDialog(window, "Choose a file to save graph", allowedExtensions, FileDialog.SAVE) ?: return
     openGraphFile(openedFile).saveGraph(renderableGraph)
 }

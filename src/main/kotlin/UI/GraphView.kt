@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
@@ -74,6 +75,13 @@ class GraphView {
             rerenderGraph()
         }
 
+        // Resets scale and translation to the default
+        fun setDefaultView() {
+            transformScale = 1f
+            transformOffset = Offset(0f, 0f)
+            rerenderGraph()
+        }
+
         // Callback function to be used externally where graph loading occurs
         fun onGraphChange(renderableGraph: RenderableGraph) {
             this.renderableGraph = renderableGraph
@@ -96,13 +104,13 @@ class GraphView {
         // Called upon any mouse button press in graph view
         internal fun handleMousePress(buttons: PointerButtons, originalMousePosition: Offset) {
             val position = getRelativeMousePosition(originalMousePosition)
-            val clickedVertex = renderableGraph.getVertexAtPosition(position)
 
             if (buttons.isPrimaryPressed && LMBClickPosition == null) {
                 LMBClickPosition = position
                 oldTransformOffset = transformOffset
 
                 // On left mouse button click
+                val clickedVertex = renderableGraph.getVertexAtPosition(position)
                 if (clickedVertex != null) { // Move the vertex if it is to be dragged
                     holdVertex = clickedVertex
                 }
@@ -291,7 +299,7 @@ class GraphView {
             val normalizedPosition = originalMousePosition / widgetScale
 
             // Now the position is scaled around the point (0.5, 0.5)
-            val scaledPosition = normalizedPosition - Offset(0.5f, 0.5f) / transformScale + Offset(0.5f, 0.5f)
+            val scaledPosition = (normalizedPosition - Offset(0.5f, 0.5f)) / transformScale + Offset(0.5f, 0.5f)
 
             // And finally we apply the translation
             val translatedPosition = scaledPosition - transformOffset
@@ -313,6 +321,14 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
             .fillMaxHeight()
             .weight(2f)
             .padding(horizontal = 10.dp)
+            .onKeyEvent {
+                if (it.type == KeyEventType.KeyDown && it.key == Key.B) {
+                    GraphView.setDefaultView()
+                    true
+                } else {
+                    false
+                }
+            }
     ) {
         val textMeasurer = rememberTextMeasurer()
         val canvasOutlineBrush = Brush.linearGradient(List(8) { index -> if (index % 2 == 0) Color.Blue else Color.Magenta })
@@ -386,7 +402,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
                 }
 
                 Button(onClick = {
-
+                    GraphInsertionDialogHelper.open()
                 }, modifier = buttonModifier) {
                     Text("I", style = buttonTextStyle)
                 }
@@ -415,6 +431,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
     GraphView.edgeWeightInputDialogHelper.show()
 
     GraphInfoDialogHelper.show()
+    GraphInsertionDialogHelper.show()
 
     actionConfirmationDialogHelper.show()
 }
