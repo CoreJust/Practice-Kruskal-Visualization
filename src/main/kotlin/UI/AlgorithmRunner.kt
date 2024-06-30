@@ -113,7 +113,7 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
         }
 
         if (!algorithm!!.step()) { // Check if no more algorithm steps can be done
-            alertDialogHelper.open(title = "Algorithm exception", message = "Algorithm is finished, no more steps can be done")
+            alertDialogHelper.open(title = "Info", message = "Algorithm is finished, no more steps can be done")
             hasMoreSteps = false
             return
         }

@@ -3,15 +3,10 @@ package algorithm
 import UI.Console
 import UI.EdgeWindow
 import UI.GraphView
-import androidx.compose.material.TextField
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ExperimentalGraphicsApi
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import graph.Edge
 import graph.RenderableGraph
 import kotlin.math.abs
-import kotlinx.coroutines.*
 
 // Заглушка для класса алгоритма
 /*
@@ -87,11 +82,12 @@ class Kruskal(val graph: RenderableGraph) {
                     pos = res.length + 1
             }
         }
-        //вывод списка ребер в отдельное окно + установка позиции на cur
-        EdgeWindow.text = TextFieldValue(text = res, selection = TextRange(pos))
-        //EdgeWindow.text = TextFieldValue(text = "Text\n".repeat(100), selection = TextRange(2))//новый текст
-        //EdgeWindow.text.selection = pos //позиция в тексте., \n - 1 символ)
 
+        //вывод списка ребер в отдельное окно + установка позиции на cur
+        EdgeWindow.clear()
+        EdgeWindow.println(res)
+        EdgeWindow.setAnchor(pos)
+        EdgeWindow.render()
     }
 
     fun setAlgorithmColor(EdgeColor:Color){
