@@ -53,6 +53,8 @@ fun RowScope.ConsoleUI(isEditMode: Boolean) {
     val algorithmAlertDialogHelper by remember { mutableStateOf(AlertDialogHelper()) }
     val algorithmRunner by remember { mutableStateOf(AlgorithmRunner(algorithmAlertDialogHelper)) }
 
+    var isAlgorithmRunning by remember { mutableStateOf(false) }
+
     // Reloading the algorithm runner if necessary
     if (isEditMode != Console.lastEditMode) {
         if (!isEditMode) {
@@ -120,7 +122,11 @@ fun RowScope.ConsoleUI(isEditMode: Boolean) {
             Row(modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterHorizontally)) {
                 Box(modifier = Modifier.fillMaxHeight().weight(1f)) {
                     Button(onClick = {
-                        algorithmRunner.stepBack()
+                        if (isAlgorithmRunning) {
+                            algorithmRunner.decelerate()
+                        } else {
+                            algorithmRunner.stepBack()
+                        }
                     }, modifier = Modifier
                         .padding(bottom = bottomButtonPadding)
                         .clip(shape = RoundedCornerShape(topStart = buttonRoundness, bottomStart = buttonRoundness))
@@ -132,18 +138,28 @@ fun RowScope.ConsoleUI(isEditMode: Boolean) {
 
                 Box(modifier = Modifier.fillMaxHeight().weight(2f).padding(horizontal = 10.dp)) {
                     Button(onClick = {
+                        isAlgorithmRunning = !isAlgorithmRunning
 
+                        if (isAlgorithmRunning) {
+                            algorithmRunner.run()
+                        } else {
+                            algorithmRunner.pause()
+                        }
                     }, modifier = Modifier
                         .padding(bottom = bottomButtonPadding)
                         .fillMaxSize()
                     ) {
-                        Text("Run")
+                        Text(if (isAlgorithmRunning) "Pause" else "Run")
                     }
                 }
 
                 Box(modifier = Modifier.fillMaxHeight().weight(1f)) {
                     Button(onClick = {
-                        algorithmRunner.stepForth()
+                        if (isAlgorithmRunning) {
+                            algorithmRunner.accelerate()
+                        } else {
+                            algorithmRunner.stepForth()
+                        }
                     }, modifier = Modifier
                         .padding(bottom = bottomButtonPadding)
                         .clip(shape = RoundedCornerShape(topEnd = buttonRoundness, bottomEnd = buttonRoundness))

@@ -15,16 +15,8 @@ fun FileDialog(
     title: String = "Choose a file",
     allowedExtensions: List<String>,
     mode: Int
-): File {
-    var result: File? = null
-    while (result == null) {
-        result = FileDialog(window, title, mode).apply {
+): File? = FileDialog(window, title, mode).apply {
             isMultipleMode = false
             file = allowedExtensions.joinToString(";") { "*$it" }
             isVisible = true
         }.files.firstOrNull()
-    }
-
-    return result
-}
-
