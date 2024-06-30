@@ -8,6 +8,7 @@
 
 package UI
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
@@ -40,7 +42,7 @@ class SingleFieldInputDialogHelper() {
 
     // To be used somewhere in a Composable context
     @Composable
-    public fun show() {
+    fun show() {
         if (isOpen) {
             SingleFieldInputDialogUI(
                 title = title,
@@ -54,7 +56,7 @@ class SingleFieldInputDialogHelper() {
     }
 
     // To be used out of Composable context to open up a dialog
-    public fun open(title: String, message: String? = null, label: String = "Input", defaultText: String = "", onConfirmation: (String) -> Unit) {
+    fun open(title: String, message: String? = null, label: String = "Input", defaultText: String = "", onConfirmation: (String) -> Unit) {
         this.title = title
         this.message = message
         this.label = label
@@ -78,6 +80,7 @@ fun SingleFieldInputDialogUI(title: String, message: String? = null, label: Stri
         Card (
             shape = RoundedCornerShape(12.dp),
             elevation = 8.dp,
+            border = BorderStroke(width = 3.dp, color = Color.Blue),
             modifier = Modifier
                 .padding(8.dp)
                 .onPreviewKeyEvent {

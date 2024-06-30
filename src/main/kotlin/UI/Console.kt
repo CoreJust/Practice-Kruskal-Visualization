@@ -7,6 +7,7 @@
 
 package UI
 
+import CommandProcessor
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -16,33 +17,56 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import graph.RenderableGraph
-import graph.layout.CircleLayout
 
 // Class with static API for simulating console
 class Console {
     companion object {
-        internal var text by mutableStateOf("")
+        internal var textRenderTrigger by mutableStateOf(0)
+        internal var text = AnnotatedString.Builder("")
         internal var lastEditMode = true
 
-        fun print(str: String) {
-            text += str
+        fun print(str: String, color: Color = Color.Blue) {
+            text.withStyle(SpanStyle(color = color)) {
+                append(str)
+            }
+
+            textRenderTrigger += 1
         }
 
-        fun println(str: String) {
-            text += str + '\n'
+        fun println(str: String, color: Color = Color.Blue) {
+            text.withStyle(SpanStyle(color = color)) {
+                append(str + '\n')
+            }
+
+            textRenderTrigger += 1
         }
 
         fun clear() {
-            text = ""
+            text = AnnotatedString.Builder("")
+            textRenderTrigger += 1
         }
 
-        fun setEditMode(isEditMode: Boolean) {
+        internal fun setEditMode(isEditMode: Boolean) {
             if (isEditMode != lastEditMode) {
                 clear()
                 lastEditMode = isEditMode
             }
+        }
+
+        internal fun getTextFieldValue(): TextFieldValue {
+            val annotatedString = text.toAnnotatedString()
+            return TextFieldValue(
+                annotatedString = annotatedString,
+                selection = TextRange(annotatedString.length)
+            )
         }
     }
 }
@@ -74,8 +98,13 @@ fun RowScope.ConsoleUI(isEditMode: Boolean) {
             .padding(start = 10.dp)
     ) {
         OutlinedTextField(
-            value = Console.text,
-            onValueChange = { if (isEditMode) Console.text = it },
+            value = if (Console.textRenderTrigger < 0) TextFieldValue() else Console.getTextFieldValue(),
+            onValueChange = {
+                if (isEditMode) { // Executing commands on enter
+                    Console.text = AnnotatedString.Builder(it.text)
+                    Console.textRenderTrigger += 1
+                }
+            },
             label = { Text("Console") },
             singleLine = false,
             readOnly = !isEditMode,
@@ -84,41 +113,22 @@ fun RowScope.ConsoleUI(isEditMode: Boolean) {
                 .fillMaxWidth()
                 .weight(10f)
                 .padding(bottom = 4.dp)
+                .onPreviewKeyEvent {
+                    if (it.key == Key.Enter && it.type == KeyEventType.KeyDown) {
+                        val text = Console.text.toAnnotatedString().toString()
+                        Console.print("\n")
+                        CommandProcessor.execute(text.substringAfterLast('\n'))
+
+                        true
+                    } else {
+                        false
+                    }
+                }
         )
 
         val buttonRoundness = 9.dp
         val bottomButtonPadding = 6.dp
-        if (isEditMode) {
-            Button(onClick = {
-                val renderableGraph = RenderableGraph()
-
-                for (line in Console.text.splitToSequence('\n')) {
-                    val cmd = line.split(' ')
-                    when (cmd[0]) {
-                        "v", "vertex" ->
-                            if (cmd.size >= 2) {
-                                renderableGraph.addVertex(cmd[1])
-                            }
-
-                        "e", "edge" ->
-                            if (cmd.size >= 3) {
-                                val weight = if (cmd.size <= 3) 1 else cmd[3].toIntOrNull() ?: 1
-                                renderableGraph.addEdge(cmd[1], cmd[2], weight)
-                            }
-                    }
-                }
-
-                renderableGraph.positionVertices(CircleLayout())
-                GraphView.onGraphChange(renderableGraph)
-            }, modifier = Modifier
-                .padding(bottom = bottomButtonPadding)
-                .clip(shape = RoundedCornerShape(buttonRoundness))
-                .fillMaxWidth()
-                .weight(1f)
-            ) {
-                Text("Execute")
-            }
-        } else {
+        if (!isEditMode) {
             Row(modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterHorizontally)) {
                 Box(modifier = Modifier.fillMaxHeight().weight(1f)) {
                     Button(onClick = {

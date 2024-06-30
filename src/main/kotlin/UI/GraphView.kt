@@ -432,6 +432,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
 
     GraphInfoDialogHelper.show()
     GraphInsertionDialogHelper.show()
+    ComingSoonDialogHelper.show()
 
     actionConfirmationDialogHelper.show()
 }

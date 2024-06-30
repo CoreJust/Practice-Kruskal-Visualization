@@ -8,7 +8,7 @@
 
 package UI
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -66,8 +66,8 @@ fun GraphInsertionDialogUI(onDismiss: () -> Unit) {
             shape = RoundedCornerShape(12.dp),
             elevation = 8.dp,
             modifier = Modifier
-                .padding(8.dp)
-                .border(width = 2.dp, color = Color.Blue)
+                .padding(8.dp),
+            border = BorderStroke(width = 3.dp, color = Color.Blue)
         ) {
             Column (
                 horizontalAlignment = Alignment.CenterHorizontally,
