@@ -36,6 +36,8 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
             currentStep = 0
             hasMoreSteps = true
             isRunning = false
+
+            EdgeWindow.isOpen = true
         } catch (e: AlgorithmException) {
             alertDialogHelper.open(title = "Algorithm exception", message = e.message ?: "")
         }
@@ -49,6 +51,8 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
         algorithmHistory.clear()
         currentStep = 0
         hasMoreSteps = false
+
+        EdgeWindow.isOpen = false
 
         GraphView.renderableGraph.resetColors()
         GraphView.onGraphChange(GraphView.renderableGraph)
