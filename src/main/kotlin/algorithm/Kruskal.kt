@@ -38,30 +38,39 @@ import kotlin.math.abs
 
 class Kruskal(val graph: RenderableGraph) {
 
-    internal var result:ArrayList<Edge> = arrayListOf()                         //массив ребер МОДа
+    internal var result:ArrayList<Edge> = arrayListOf()                  //массив ребер МОДа
+    var algorithmEdgeColor:Color = Color(red = 255, green = 0, blue = 0, alpha = 255)
+    val weightMST:Int                                                    //вес МОД
+        get() {
+            var sum = 0
+            for(i in result)
+                sum += i.weight
+            return sum
+        }
 
-    fun init() {                                                         // Изначально окрашивает вершины и рёбра графа, приводит его в исходному состоянию
-        if(graph.vertices.size > 500)   //если слишком много вершин
+
+    fun setAlgorithmColor(EdgeColor:Color){
+        algorithmEdgeColor = EdgeColor                                      // Установили цвет ребра в алгоритме
+    }
+
+    fun init() {                                                            // Изначально окрашивает вершины и рёбра графа, приводит его в исходному состоянию
+        if(graph.vertices.size > 500)                                       //если слишком много вершин
             throw TooManyVertices("The number of vertices should not be more than 500, your number of vertices: $graph.vertices.size")
-        if(graph.splitIntoComponents().size > 1) //если больше 1 компоненты связности
+        if(graph.splitIntoComponents().size > 1)                            //если больше 1 компоненты связности
             throw TooManyComponents("The number of connectivity components should not be more than 1. The real number of connectivity components: $graph.splitIntoComponents().size")
 
-        val usedColors: HashSet<Color> = hashSetOf(Color.Black, Color.White)
-        var r: Int
-        var g: Int
-        var b: Int
+        val usedColors: HashSet<Color> = hashSetOf(Color.Black, Color.White) //запретили белый и чёрный цвет
         var step = 255
         var countPerComponent = 2
-        var currStep = 0
         var i = 0
 
-        fun nextColor(): Color {
-            r = (i % countPerComponent) * step
-            g = ((i / countPerComponent) % countPerComponent) * step
-            b = ((i / (countPerComponent * countPerComponent)) % countPerComponent) * step
+        fun nextColor(): Color {                                              //расчёт следующего цвета, достаточно отличного от текущего
+            val r = (i % countPerComponent) * step
+            val g = ((i / countPerComponent) % countPerComponent) * step
+            val b = ((i / (countPerComponent * countPerComponent)) % countPerComponent) * step
             i += 1
 
-            if (i >= countPerComponent * countPerComponent * countPerComponent) {
+            if (i >= Math.pow(countPerComponent.toDouble(), 3.0)) {    //!!! countPerComponent * countPerComponent * countPerComponent
                 i = 0
                 countPerComponent *= 2
                 step /= 2
@@ -84,8 +93,8 @@ class Kruskal(val graph: RenderableGraph) {
             usedColors.add(color)
 
             graph.setVertexColor(vertex, color)   //присваиваем текущей вершине цвет
-            currStep++
         }
+
         GraphView.onGraphChange(graph)                  //отрисовка графа
     }
 
@@ -103,12 +112,13 @@ class Kruskal(val graph: RenderableGraph) {
         return newIndex
     }
 
+
     // Делает один шаг алгоритма, изменяя при этом граф
     // Возвращает true, если работа алгоритма ещё не закончена, и false, если алгоритм закончил работу
 
     fun step(): Boolean {
-        val edgeList = graph.edges.sortedBy {it.weight}  //сортируем массив рёбер во возрастанию
-        var j = 0                                        //индекс
+        val edgeList = graph.edges.sortedBy {it.weight}      //сортируем массив рёбер во возрастанию
+        var j = 0                                            //индекс
 
         if(result.size > 0){
             for(i in 0..edgeList.size - 1) {           //пробегаем по отсортированному массиву ребер
@@ -129,19 +139,9 @@ class Kruskal(val graph: RenderableGraph) {
             return false                                    //алгоритм завершил свою работу
         else
         {
-            for(i in edgeList)                              //перекраска вершин (в цвет первой вершины j го ребра
-            {
-                if(i.first.color == edgeList[j].second.color) {
-                    i.first.color = edgeList[j].first.color
-                    graph.setVertexColor(i.first, edgeList[j].first.color)  //перекраска и в самом графе
-                }
-                if(i.second.color == edgeList[j].second.color) {
-                    i.second.color = edgeList[j].first.color
-                    graph.setVertexColor(i.second, edgeList[j].first.color)  //перекраска и в самом графе
-                }
-            }
+            graph.replaceVertexColor(edgeList[j].first.color, edgeList[j].second.color)
             result.add(edgeList[j])                         //добавили ребро в результат
-            graph.setEdgeColor(edgeList[j], Color(red = 255, green = 0, blue = 0, alpha = 255))
+            graph.setEdgeColor(edgeList[j], algorithmEdgeColor)
             GraphView.onGraphChange(graph)                  //отрисовка графа
         }
         //проверка не прошли ли мы все ребра
