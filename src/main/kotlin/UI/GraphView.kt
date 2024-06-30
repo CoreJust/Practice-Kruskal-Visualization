@@ -393,7 +393,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
             }
 
             Button(onClick = {
-
+                GraphInfoDialogHelper.open()
             }, modifier = buttonModifier) {
                 Text("?", style = buttonTextStyle)
             }
@@ -413,6 +413,8 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
     GraphView.alertDialogHelper.show()
     GraphView.vertexNameInputDialogHelper.show()
     GraphView.edgeWeightInputDialogHelper.show()
+
+    GraphInfoDialogHelper.show()
 
     actionConfirmationDialogHelper.show()
 }

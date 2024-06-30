@@ -13,8 +13,8 @@ import graph.layout.CircleLayout
 import java.awt.FileDialog
 
 fun GraphLoadDialogUI(window: ComposeWindow, onGraphChange: (RenderableGraph) -> Unit) {
-    val openedFile =
-        FileDialog(window, "Choose a graph file", listOf(".tgf", ".graphml", ".dot", ".gv"), FileDialog.LOAD)
+    val allowedExtensions = listOf(".tgf", ".graphml", ".dot", ".gv")
+    val openedFile = FileDialog(window, "Choose a graph file", allowedExtensions, FileDialog.LOAD) ?: return
     val loadedGraph = openGraphFile(openedFile).loadGraph().also { it.positionVertices(CircleLayout()) }
     onGraphChange(loadedGraph)
 }
