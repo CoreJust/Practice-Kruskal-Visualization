@@ -23,7 +23,7 @@ class RenderableGraph : Graph() {
     companion object {
         val DEFAULT_COLOR = Color.Blue
         val ACTIVE_COLOR = Color.Red
-        val TEXT_COLOR = Color.Cyan
+        val TEXT_COLOR = Color.Black
         val WEIGHT_BACKGROUND_COLOR = Color.Gray.compositeOver(Color.White)
 
         const val VERTEX_SIZE = 0.028f
@@ -202,6 +202,14 @@ class RenderableGraph : Graph() {
     }
 
     // Allows to give a vertex a new name
+    fun renameVertex(vertex: String, newName: String) {
+        renameVertex(
+            getVertexByName(vertex) ?: throw NoSuchVertexException(vertex),
+            newName
+        )
+    }
+
+    // Allows to give a vertex a new name
     fun renameVertex(vertex: Vertex, newName: String) {
         if (!vertices.contains(vertex)) {
             throw NoSuchVertexException(vertex.name)
@@ -218,6 +226,15 @@ class RenderableGraph : Graph() {
         verticesByName.remove(vertex.name)
         verticesByName.put(newName, vertex)
         vertex.name = newName
+    }
+
+    // Allows to give an edge a new weight
+    fun setEdgeWeight(from: String, to: String, newWeight: Int) {
+        setEdgeWeight(
+            getVertexByName(from) ?: throw NoSuchVertexException(from),
+            getVertexByName(to) ?: throw NoSuchVertexException(to),
+            newWeight
+        )
     }
 
     // Allows to give an edge a new weight
@@ -271,6 +288,11 @@ class RenderableGraph : Graph() {
     }
 
     // Removes a vertex from the graph and removes its render info
+    fun removeVertex(vertex: String) {
+        removeVertex(getVertexByName(vertex) ?: throw NoSuchVertexException(vertex))
+    }
+
+    // Removes a vertex from the graph
     fun removeVertex(vertex: Vertex) {
         if (!vertices.contains(vertex)) {
             throw NoSuchVertexException(vertex.name)
@@ -304,6 +326,14 @@ class RenderableGraph : Graph() {
         }
 
         super.addEdge(from, to, weight, DEFAULT_COLOR)
+    }
+
+    // Removes an edge from the graph
+    fun removeEdge(from: String, to: String) {
+        removeEdge(
+            getVertexByName(from) ?: throw NoSuchVertexException(from),
+            getVertexByName(to) ?: throw NoSuchVertexException(to)
+        )
     }
 
     // Removes an edge from the graph

@@ -60,12 +60,12 @@ fun main() = application {
                     )
                 }
                 Menu("Options", mnemonic = 'O') {
-                    Item("Graph render options", onClick = { })
-                    Item("Algorithm options", onClick = { })
+                    Item("Graph render options", onClick = { ComingSoonDialogHelper.open() })
+                    Item("Algorithm options", onClick = { ComingSoonDialogHelper.open() })
                 }
                 Menu("Info", mnemonic = 'I') {
-                    Item("Guide", onClick = { })
-                    Item("About program", onClick = { })
+                    Item("Guide", onClick = { ComingSoonDialogHelper.open() })
+                    Item("About program", onClick = { ComingSoonDialogHelper.open() })
                 }
             }
 

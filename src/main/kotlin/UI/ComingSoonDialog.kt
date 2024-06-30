@@ -1,8 +1,7 @@
 /*
-* UI.GraphInfoDialog.kt
-* Contains the function GraphInfoDialogUI that allows to create a dialog that displays some information on
-* the current graph.
-* Also, this file contains a helper class GraphInfoDialogHelper that allows to create that kind of dialog from
+* UI.ComingSoonDialog.kt
+* Contains the function ComingSoonDialogUI that allows to create a dialog with "Coming soon" message
+* Also, contains a helper class ComingSoonDialogHelper that allows to create that kind of dialog from
 * a non-composable context (by placing its show() function call somewhere within composable context)
 */
 
@@ -19,14 +18,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
-class GraphInfoDialogHelper() {
+class ComingSoonDialogHelper {
     companion object {
         private var isOpen by mutableStateOf(false)
 
@@ -34,7 +35,7 @@ class GraphInfoDialogHelper() {
         @Composable
         fun show() {
             if (isOpen) {
-                GraphInfoDialogUI({ isOpen = false })
+                ComingSoonDialogUI({ isOpen = false })
             }
         }
 
@@ -46,7 +47,7 @@ class GraphInfoDialogHelper() {
 }
 
 @Composable
-fun GraphInfoDialogUI(onDismiss: () -> Unit) {
+fun ComingSoonDialogUI(onDismiss: () -> Unit) {
     Dialog(
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(dismissOnClickOutside = true, dismissOnBackPress = true)
@@ -55,21 +56,18 @@ fun GraphInfoDialogUI(onDismiss: () -> Unit) {
             shape = RoundedCornerShape(12.dp),
             elevation = 8.dp,
             modifier = Modifier
-                .padding(8.dp),
+                .padding(8.dp)
+                .width(440.dp)
+                .height(240.dp),
             border = BorderStroke(width = 3.dp, color = Color.Blue)
         ) {
-            Column (
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth().padding(9.dp)
-            ) {
-                val edgesList = GraphView.renderableGraph.edges
-
-                Text(text = "Graph info", fontWeight = FontWeight.Bold, fontSize = 28.sp)
-                Spacer(Modifier.height(10.dp))
-                Text(text = "Vertices: ${GraphView.renderableGraph.vertices.size}", fontSize = 16.sp)
-                Text(text = "Edges: ${edgesList.size}", fontSize = 16.sp)
-                Text(text = "Components: ${GraphView.renderableGraph.splitIntoComponents().size}", fontSize = 16.sp)
-                Text(text = "Overall graph weight: ${edgesList.map { it.weight }.sum()}", fontSize = 16.sp)
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                Text(
+                    text = "Coming soon",
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.Bold,
+                    style = TextStyle(brush = Brush.linearGradient(listOf(Color.Magenta, Color.Blue, Color.Magenta)))
+                )
             }
         }
     }
