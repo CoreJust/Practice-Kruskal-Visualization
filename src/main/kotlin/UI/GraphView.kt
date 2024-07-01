@@ -9,6 +9,7 @@ package UI
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -18,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -242,6 +245,7 @@ class GraphView {
             vertexNameInputDialogHelper.open(
                 title = "Enter new vertex name",
                 label = "Vertex name",
+                defaultText = vertex.name,
                 onConfirmation = {
                     renderableGraph.renameVertex(vertex, it)
                     rerenderGraph()
@@ -254,6 +258,7 @@ class GraphView {
             edgeWeightInputDialogHelper.open(
                 title = "Enter new edge weight",
                 label = "Edge weight",
+                defaultText = renderableGraph.getOutcomingEdge(from, to)?.weight?.toString() ?: "",
                 onConfirmation = {
                     if (renderableGraph.getOutcomingEdge(from, to) == null) {
                         alertDialogHelper.open(
@@ -314,6 +319,7 @@ class GraphView {
 fun RowScope.GraphViewUI(isEditMode: Boolean) {
     var alertMessage by remember { mutableStateOf("") }
     val actionConfirmationDialogHelper by remember { mutableStateOf(ConfirmationDialogHelper()) }
+    val canvasFocusRequester = FocusRequester()
 
     GraphView.isEditMode = isEditMode
 
@@ -323,13 +329,22 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
             .weight(2f)
             .padding(horizontal = 10.dp)
             .onKeyEvent {
-                if (it.type == KeyEventType.KeyDown && it.key == Key.B) {
-                    GraphView.setDefaultView()
+                if (it.type == KeyEventType.KeyDown) {
+                    when (it.key) {
+                        Key.A -> GraphView.repositionVertices()
+                        Key.B -> GraphView.setDefaultView()
+                        Key.C -> onClearGraph(actionConfirmationDialogHelper)
+                        Key.I -> GraphInsertionDialogHelper.open()
+                        Key.Q -> GraphInfoDialogHelper.open()
+                        else -> return@onKeyEvent false
+                    }
+
                     true
                 } else {
                     false
                 }
-            }
+            }.focusable()
+            .focusRequester(canvasFocusRequester)
     ) {
         val textMeasurer = rememberTextMeasurer()
         val canvasOutlineBrush = Brush.linearGradient(List(8) { index -> if (index % 2 == 0) Color.Blue else Color.Magenta })
@@ -349,6 +364,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
 
                             event.changes.forEach { e -> e.consume() }
                             GraphView.isRenameMode = event.keyboardModifiers.isShiftPressed
+                            canvasFocusRequester.requestFocus()
 
                             try {
                                 when (event.type) {
@@ -393,11 +409,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
 
             if (isEditMode) {
                 Button(onClick = {
-                    actionConfirmationDialogHelper.open(
-                        title = "Confirm action",
-                        message = "Are you sure you want to delete the current graph?",
-                        onConfirmation = { GraphView.onGraphChange(RenderableGraph()) }
-                    )
+                    onClearGraph(actionConfirmationDialogHelper)
                 }, modifier = buttonModifier) {
                     Text("C", style = buttonTextStyle)
                 }
@@ -436,4 +448,13 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
     ComingSoonDialogHelper.show()
 
     actionConfirmationDialogHelper.show()
+}
+
+// Called on graph clear action (when the corresponding button is clicked)
+private fun onClearGraph(actionConfirmationDialogHelper: ConfirmationDialogHelper) {
+    actionConfirmationDialogHelper.open(
+        title = "Confirm action",
+        message = "Are you sure you want to delete the current graph?",
+        onConfirmation = { GraphView.onGraphChange(RenderableGraph()) }
+    )
 }

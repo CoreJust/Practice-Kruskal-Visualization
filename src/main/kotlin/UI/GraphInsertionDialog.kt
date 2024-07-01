@@ -108,6 +108,7 @@ fun GraphInsertionDialogUI(onDismiss: () -> Unit) {
                 if (selectedGraphType == graphTypes[3]) { // Complete bipartite graph
                     OutlinedTextField(
                         value = firstPartSize,
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         onValueChange = { firstPartSize = it },
                         label = { Text("First part size") }
@@ -115,6 +116,7 @@ fun GraphInsertionDialogUI(onDismiss: () -> Unit) {
 
                     OutlinedTextField(
                         value = secondPartSize,
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         onValueChange = { secondPartSize = it },
                         label = { Text("Second part size") }
@@ -122,6 +124,7 @@ fun GraphInsertionDialogUI(onDismiss: () -> Unit) {
                 } else {
                     OutlinedTextField(
                         value = graphSize,
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         onValueChange = { graphSize = it },
                         label = { Text("Number of vertices") }

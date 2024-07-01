@@ -70,7 +70,7 @@ fun main() = application {
             }
 
             Row(modifier = Modifier.padding(vertical = 10.dp)) {
-                ConsoleUI(isEditMode)
+                ConsoleUI(isEditMode, onModeChangeFailure = { isEditMode = !isEditMode })
                 GraphViewUI(isEditMode)
             }
         }

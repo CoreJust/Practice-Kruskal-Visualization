@@ -74,7 +74,7 @@ class Console {
 
 // The composable function that displays the actual console
 @Composable
-fun RowScope.ConsoleUI(isEditMode: Boolean) {
+fun RowScope.ConsoleUI(isEditMode: Boolean, onModeChangeFailure: () -> Unit) {
     val algorithmAlertDialogHelper by remember { mutableStateOf(AlertDialogHelper()) }
     val algorithmRunner by remember { mutableStateOf(AlgorithmRunner(algorithmAlertDialogHelper)) }
 
@@ -83,7 +83,9 @@ fun RowScope.ConsoleUI(isEditMode: Boolean) {
     // Reloading the algorithm runner if necessary
     if (isEditMode != Console.lastEditMode) {
         if (!isEditMode) {
-            algorithmRunner.initAlgorithm()
+            if (!algorithmRunner.initAlgorithm()) {
+                onModeChangeFailure()
+            }
         } else {
             algorithmRunner.destroyAlgorithm()
         }

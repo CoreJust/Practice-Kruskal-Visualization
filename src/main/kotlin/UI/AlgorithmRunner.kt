@@ -26,7 +26,8 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
     private var runningTimer = Timer()
 
     // Initializes the algorithm on algorithm mode start
-    fun initAlgorithm() {
+    // Returns true if algorithm was successfully initialized and false otherwise
+    fun initAlgorithm(): Boolean {
         assert(algorithm == null)
 
         try {
@@ -38,8 +39,16 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
             isRunning = false
 
             EdgeWindow.isOpen = true
+            return true
         } catch (e: AlgorithmException) {
+            // Just in case, we reset the things that could get partially initialized
+            algorithm = null
+            GraphView.renderableGraph.resetColors()
+            GraphView.onGraphChange(GraphView.renderableGraph)
+
             alertDialogHelper.open(title = "Algorithm exception", message = e.message ?: "")
+
+            return false
         }
     }
 

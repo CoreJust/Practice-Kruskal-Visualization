@@ -10,6 +10,7 @@ package graph.layout
 import androidx.compose.ui.geometry.Offset
 import graph.RenderableGraph
 import graph.Vertex
+import graph.VertexId
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -64,12 +65,39 @@ class CircleLayout(private val radius: Float = 0f, private val separateComponent
             return
         }
 
-        val step = 2 * Math.PI / vertices.size
+        val orderedVertices = orderVerticesByEdges(vertices)
+        val step = 2 * Math.PI / orderedVertices.size
         var angle = 0.0
-        for (vertex in vertices) {
+        for (vertex in orderedVertices) {
             vertex.position = center + Offset(sin(angle).toFloat(), cos(angle).toFloat()) * radius
             angle += step
         }
+    }
+
+    // Reorders the vertices so that the maximum of connected vertices would be on adjacent positions
+    private fun orderVerticesByEdges(vertices: Set<Vertex>): List<Vertex> {
+        if (vertices.isEmpty()) {
+            return listOf()
+        }
+
+        val addedVertices: HashSet<VertexId> = hashSetOf()
+        val result: ArrayList<Vertex> = arrayListOf()
+        var currentVertex: Vertex = vertices.first()
+
+        result.add(currentVertex)
+        addedVertices.add(currentVertex.id)
+
+        while (result.size < vertices.size) {
+            currentVertex = currentVertex.outcomingEdges
+                .firstOrNull { !addedVertices.contains(it.to.id) }
+                ?.to
+                ?: vertices.first { !addedVertices.contains(it.id) }
+
+            result.add(currentVertex)
+            addedVertices.add(currentVertex.id)
+        }
+
+        return result
     }
 
     // Auxiliary function that computes where to place graph components
@@ -108,12 +136,13 @@ class CircleLayout(private val radius: Float = 0f, private val separateComponent
 
     // Auxiliary function that calculates the actual circle radius based on the parameter given and area size
     private fun computeActualRadius(originalRadius: Float, areaSize: Float = 1f, verticesCount: Int = 1): Float {
-        val smallComponentModifier =
-            if (verticesCount == 2) 0.85f else 1f // So that components of 2 vertices are rendered correctly
-        if (originalRadius == 0f) {
-            return areaSize * 0.45f * smallComponentModifier
+        // Small adjustment so that components of 2 vertices are rendered correctly
+        val smallComponentModifier = if (verticesCount == 2) 0.85f else 1f
+
+        return if (originalRadius == 0f) {
+            areaSize * 0.45f * smallComponentModifier
         } else {
-            return areaSize * Math.clamp(originalRadius, 0f, 1f) * 0.45f * smallComponentModifier
+            areaSize * Math.clamp(originalRadius, 0f, 1f) * 0.45f * smallComponentModifier
         }
     }
 }
