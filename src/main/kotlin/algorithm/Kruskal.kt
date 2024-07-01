@@ -66,7 +66,7 @@ class Kruskal(val graph: RenderableGraph) {
         val consoleSkippedEdge = Color(0, 24, 161, 255) //цвет строки про число пропущенных рёбер
         val consoleEdgeInMST = Color(47, 5, 173, 255)    //цвет строки про добавленное ребро в МОД
         val consoleRecoloredVert = Color(132, 0, 176, 255) //цвет строки про число перекрашенных вершин Color(red = 10, green = 140, blue = 191, alpha = 255)
-        val consoleMSTWeight = Color.Magenta   //цвет строки с весом МОДа Color(red = 225, green = 28, blue = 232, alpha = 255)
+        val consoleMSTWeight = Color.Magenta   //цвет строки с весом МОДа
     }
 
     fun printInformConsole(stepNum:Int, skiped:Int, added:Edge?, recolored:Int){
