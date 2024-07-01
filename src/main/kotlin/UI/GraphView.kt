@@ -41,7 +41,7 @@ class GraphView {
         internal var renderableGraph = RenderableGraph()
         internal var graphRenderTrigger by mutableIntStateOf(0) // Used to trigger graph redrawing
 
-        internal val alertDialogHelper = AlertDialogHelper()
+        val alertDialogHelper = AlertDialogHelper()
         internal val vertexNameInputDialogHelper = SingleFieldInputDialogHelper()
         internal val edgeWeightInputDialogHelper = SingleFieldInputDialogHelper()
 
@@ -144,9 +144,9 @@ class GraphView {
                         } else {
                             setActiveVertex(null) // Reset the active vertex when deleting another vertex
                         }
-                    } else {
-                        setActiveVertex(null) // Reset active vertex when clicking RMB on an empty place
                     }
+                } else if (isRMBReleaseApplicable) {
+                    setActiveVertex(null) // Reset active vertex when clicking RMB on an empty place
                 }
 
                 if (clickedVertex == null) { // If there is no vertex in the place of the click, a new vertex is being added
@@ -282,8 +282,9 @@ class GraphView {
                 activeVertex?.also { renderableGraph.setVertexColor(it, RenderableGraph.DEFAULT_COLOR) }
                 vertex?.also { renderableGraph.setVertexColor(it, RenderableGraph.ACTIVE_COLOR) }
                 activeVertex = vertex
-                rerenderGraph()
             }
+
+            rerenderGraph()
         }
 
         // Called when the graph is required to be re-rendered

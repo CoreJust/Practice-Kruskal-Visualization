@@ -31,6 +31,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import graph.GraphException
+import kotlin.concurrent.thread
 
 class SingleFieldInputDialogHelper() {
     private var isOpen by mutableStateOf(false)
@@ -122,7 +124,14 @@ fun SingleFieldInputDialogUI(title: String, message: String? = null, label: Stri
                     }
 
                     Button(
-                        onClick = { onConfirmation(inputFieldText.text) },
+                        onClick = {
+                            try {
+                                onConfirmation(inputFieldText.text)
+                            } catch (e: GraphException) {
+                                GraphView.alertDialogHelper.open("Graph exception", e.message ?: "")
+                                onDismiss()
+                            }
+                        },
                         modifier = Modifier.padding(7.dp)
                     ) {
                         Text("Confirm")
