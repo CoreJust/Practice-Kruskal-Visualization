@@ -45,6 +45,7 @@ class Kruskal(val graph: RenderableGraph) {
     internal var result:ArrayList<Edge> = arrayListOf()                  //массив ребер МОДа
     private var stepNum = 0 //номер шага
     private var skiped = 0  //пропущено на текущем шаге
+    var edgeList = listOf<Edge>()
 
     var state:ArrayList<Boolean> = arrayListOf()                         //находится в МОД - true, не находится - false
     val weightMST:Int                                                    //вес МОД
@@ -140,6 +141,7 @@ class Kruskal(val graph: RenderableGraph) {
         if(graph.splitIntoComponents().size == 0)                            //если граф пуст
             throw IsEmptyGraph("You cannot run the algorithm on an empty graph")
 
+        edgeList = graph.edges.sortedBy {it.weight}                           //сортируем массив рёбер во возрастанию
         val usedColors: HashSet<Color> = hashSetOf(Color.Black, Color.White) //запретили белый и чёрный цвет
         var step = 256
         var countPerComponent = 2
@@ -189,8 +191,11 @@ class Kruskal(val graph: RenderableGraph) {
                 newIndex = i                            //получаем индекс найдкнного ребра
                 break                                   //выходим из цикла
             }
-            graph.setEdgeColor(edgeList[i], skippedEdge)
-            skiped++
+            if(edgeList[i].color != edgeInMST) {        //если ребро не в МОД
+                graph.setEdgeColor(edgeList[i], skippedEdge)
+                skiped++
+            }
+
             createTextEdges(i, edgeList)                //проход по каждому ребру в поиске необходимого
             i++                                         //если текущее ребро не подходит, берём следующее
         }
@@ -213,7 +218,6 @@ class Kruskal(val graph: RenderableGraph) {
     fun step(): Boolean {
         stepNum++
         skiped = 0
-        val edgeList = graph.edges.sortedBy {it.weight}      //сортируем массив рёбер во возрастанию
         setStartState(edgeList)                              //записали список состояний для каждого ребра по порядку
 
         var j = 0                                            //индекс
