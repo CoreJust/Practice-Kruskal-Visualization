@@ -319,7 +319,7 @@ class GraphView {
 fun RowScope.GraphViewUI(isEditMode: Boolean) {
     var alertMessage by remember { mutableStateOf("") }
     val actionConfirmationDialogHelper by remember { mutableStateOf(ConfirmationDialogHelper()) }
-    val canvasFocusRequester = FocusRequester()
+    val canvasFocusRequester = remember { FocusRequester() }
 
     GraphView.isEditMode = isEditMode
 
@@ -333,8 +333,8 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
                     when (it.key) {
                         Key.A -> GraphView.repositionVertices()
                         Key.B -> GraphView.setDefaultView()
-                        Key.C -> onClearGraph(actionConfirmationDialogHelper)
-                        Key.I -> GraphInsertionDialogHelper.open()
+                        Key.C -> if (isEditMode) onClearGraph(actionConfirmationDialogHelper)
+                        Key.I -> if (isEditMode) GraphInsertionDialogHelper.open()
                         Key.Q -> GraphInfoDialogHelper.open()
                         else -> return@onKeyEvent false
                     }
