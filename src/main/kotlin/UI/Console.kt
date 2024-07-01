@@ -23,6 +23,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 
@@ -130,7 +131,21 @@ fun RowScope.ConsoleUI(isEditMode: Boolean) {
         val bottomButtonPadding = 6.dp
         if (!isEditMode) {
             Row(modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterHorizontally)) {
-                Box(modifier = Modifier.fillMaxHeight().weight(1f)) {
+                Box(modifier = Modifier.fillMaxHeight().weight(1f).padding(horizontal = 5.dp)) {
+                    Button(onClick = {
+                        isAlgorithmRunning = false
+                        algorithmRunner.toTheBeginning()
+                    }, modifier = Modifier
+                        .padding(bottom = bottomButtonPadding)
+                        .clip(shape = RoundedCornerShape(topStart = buttonRoundness, bottomStart = buttonRoundness))
+                        .fillMaxSize(),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Text("◀", textAlign = TextAlign.Center)
+                    }
+                }
+
+                Box(modifier = Modifier.fillMaxHeight().weight(1f).padding(horizontal = 3.dp)) {
                     Button(onClick = {
                         if (isAlgorithmRunning) {
                             algorithmRunner.decelerate()
@@ -140,13 +155,14 @@ fun RowScope.ConsoleUI(isEditMode: Boolean) {
                     }, modifier = Modifier
                         .padding(bottom = bottomButtonPadding)
                         .clip(shape = RoundedCornerShape(topStart = buttonRoundness, bottomStart = buttonRoundness))
-                        .fillMaxSize()
+                        .fillMaxSize(),
+                        contentPadding = PaddingValues(0.dp)
                     ) {
-                        Text("<")
+                        Text("<", textAlign = TextAlign.Center)
                     }
                 }
 
-                Box(modifier = Modifier.fillMaxHeight().weight(2f).padding(horizontal = 10.dp)) {
+                Box(modifier = Modifier.fillMaxHeight().weight(2.5f).padding(horizontal = 5.dp)) {
                     Button(onClick = {
                         isAlgorithmRunning = !isAlgorithmRunning
 
@@ -157,13 +173,14 @@ fun RowScope.ConsoleUI(isEditMode: Boolean) {
                         }
                     }, modifier = Modifier
                         .padding(bottom = bottomButtonPadding)
-                        .fillMaxSize()
+                        .fillMaxSize(),
+                        contentPadding = PaddingValues(0.dp)
                     ) {
-                        Text(if (isAlgorithmRunning) "Pause" else "Run")
+                        Text(if (isAlgorithmRunning) "Pause" else "Run", textAlign = TextAlign.Center)
                     }
                 }
 
-                Box(modifier = Modifier.fillMaxHeight().weight(1f)) {
+                Box(modifier = Modifier.fillMaxHeight().weight(1f).padding(horizontal = 5.dp)) {
                     Button(onClick = {
                         if (isAlgorithmRunning) {
                             algorithmRunner.accelerate()
@@ -173,9 +190,24 @@ fun RowScope.ConsoleUI(isEditMode: Boolean) {
                     }, modifier = Modifier
                         .padding(bottom = bottomButtonPadding)
                         .clip(shape = RoundedCornerShape(topEnd = buttonRoundness, bottomEnd = buttonRoundness))
-                        .fillMaxSize()
+                        .fillMaxSize(),
+                        contentPadding = PaddingValues(0.dp)
                     ) {
-                        Text(">")
+                        Text(">", textAlign = TextAlign.Center)
+                    }
+                }
+
+                Box(modifier = Modifier.fillMaxHeight().weight(1f).padding(horizontal = 3.dp)) {
+                    Button(onClick = {
+                        isAlgorithmRunning = false
+                        algorithmRunner.toTheEnd()
+                    }, modifier = Modifier
+                        .padding(bottom = bottomButtonPadding)
+                        .clip(shape = RoundedCornerShape(topEnd = buttonRoundness, bottomEnd = buttonRoundness))
+                        .fillMaxSize(),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Text("▶", textAlign = TextAlign.Center)
                     }
                 }
             }

@@ -5,4 +5,6 @@
 
 package graph
 
-data class Edge(val first: Vertex, val second: Vertex, var weight: Int = 1)
+import androidx.compose.ui.graphics.Color
+
+data class Edge(val first: Vertex, val second: Vertex, var weight: Int = 1, val color: Color = Color.Transparent)

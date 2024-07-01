@@ -40,6 +40,85 @@ class RenderableGraph : Graph() {
         get() = GraphColoring().loadFromGraph(this)
         set(coloring) = coloring.applyToGraph(this)
 
+    // Internal auxiliary class for graph rendering
+    private class GraphRenderer(private val drawScope: DrawScope, private val textMeasurer: TextMeasurer, private val widgetScale: Float) {
+        companion object {
+            private val vertexTextStyle = TextStyle.Default.copy(
+                color = TEXT_COLOR,
+                fontSize = VERTEX_NAME_FONT_SIZE.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            private val weightTextStyle = TextStyle.Default.copy(
+                color = TEXT_COLOR,
+                fontSize = WEIGHT_FONT_SIZE.sp
+            )
+        }
+
+        // Renders a single graph vertex
+        fun renderVertex(vertex: Vertex) {
+            if (vertex.position == null) return
+
+            // Vertex itself
+            drawScope.drawCircle(
+                color = vertex.color,
+                radius = VERTEX_SIZE,
+                center = vertex.position!!
+            )
+
+            // And its name
+            val nameToDraw = vertex.name.substringBefore('$') // We drop the part of the name that comes after the first $
+            if (nameToDraw.isNotEmpty()) { // Ignore vertex names that begin with $
+                renderCenteredText(nameToDraw, vertex.position!!, vertexTextStyle)
+            }
+        }
+
+        // Renders a single graph edge
+        fun renderEdge(from: Vertex, to: Vertex, weight: String, color: Color) {
+            if (from.id >= to.id || from.position == null || to.position == null) return
+
+            val toPosition = to.position!!
+            val fromPosition = from.position!!
+            drawScope.drawLine( // The edge itself
+                color = color,
+                start = fromPosition,
+                end = toPosition,
+                strokeWidth = EDGE_WIDTH
+            )
+
+            // Edge weight
+            val weightPosition = lerp(fromPosition, toPosition, WEIGHT_POSITION)
+            drawScope.drawCircle( // The background for the weight
+                color = WEIGHT_BACKGROUND_COLOR,
+                radius = VERTEX_SIZE * 0.65f,
+                center = weightPosition
+            )
+
+            renderCenteredText(weight, weightPosition, weightTextStyle)
+        }
+
+        // Draws the text with its center at the given position
+        fun renderCenteredText(text: String, position: Offset, style: TextStyle) {
+            val vertexTextSize = textMeasurer.measure(
+                text,
+                style = style.copy(fontSize = style.fontSize * widgetScale)
+            )
+                .size.let {
+                    Offset(
+                        it.width.toFloat() / widgetScale,
+                        -it.height.toFloat() / (2 * widgetScale)
+                    )
+                }
+
+            drawScope.drawText( // Vertex name
+                textMeasurer,
+                text,
+                topLeft = position - vertexTextSize * 0.5f,
+                style = style
+            )
+        }
+    }
+
     // Does the actual rendering,
     // Must be called from Canvas context.
     fun renderGraph(
@@ -55,89 +134,27 @@ class RenderableGraph : Graph() {
             scale(scale, scale, Offset(0f, 0f))
             translate(left = offset.x - 0.5f, top = offset.y - 0.5f)
         }) {
-            for (vertex in vertices) {
-                val point = vertex.position ?: continue
+            val renderer = GraphRenderer(drawScope, textMeasurer, widgetScale)
 
-                // First we render all the outcomingEdges and their weights over them
-                for (edge in vertex.outcomingEdges) {
-                    val toVertex = edge.to
-                    if (vertex.id < toVertex.id) {
-                        val toPosition = toVertex.position ?: continue
+            // First we render the edges: gray, then normal, then other colors
+            val edges = edges
+            for (colorType in 0..2) {
+                for (edge in edges) {
+                    val edgeColorType = when(edge.color) {
+                        Color.Gray -> 0
+                        DEFAULT_COLOR -> 1
+                        else -> 2
+                    }
 
-                        drawScope.drawLine(
-                            color = edge.color,
-                            start = point,
-                            end = toPosition,
-                            strokeWidth = EDGE_WIDTH
-                        )
-
-                        val weight = edge.weight.toString()
-                        val weightPosition = lerp(point, toPosition, WEIGHT_POSITION)
-                        val weightTextStyle = TextStyle.Default.copy(
-                            color = TEXT_COLOR,
-                            fontSize = WEIGHT_FONT_SIZE.sp
-                        )
-
-                        val weightSize = textMeasurer.measure(
-                            weight,
-                            style = weightTextStyle.copy(fontSize = weightTextStyle.fontSize * widgetScale)
-                        )
-                            .size.let {
-                                Offset(
-                                    it.width.toFloat() / widgetScale,
-                                    -it.height.toFloat() / (2 * widgetScale)
-                                )
-                            }
-
-                        drawScope.drawCircle( // The background for the weight
-                            color = WEIGHT_BACKGROUND_COLOR,
-                            radius = VERTEX_SIZE * 0.65f,
-                            center = weightPosition
-                        )
-
-                        drawScope.drawText( // Weight of an edge
-                            textMeasurer,
-                            weight,
-                            topLeft = weightPosition - weightSize * 0.5f,
-                            style = weightTextStyle
-                        )
+                    if (edgeColorType == colorType) {
+                        renderer.renderEdge(edge.first, edge.second, edge.weight.toString(), edge.color)
                     }
                 }
+            }
 
-                // Then, the vertex itself is rendered
-                drawScope.drawCircle(
-                    color = vertex.color,
-                    radius = VERTEX_SIZE,
-                    center = point
-                )
-
-                // And finally, vertex names
-                val nameToDraw = vertex.name.substringBefore('$') // We drop the part of the name that comes after the first $
-                if (nameToDraw.isNotEmpty()) { // Ignore vertex names that begin with $
-                    val vertexTextStyle = TextStyle.Default.copy(
-                        color = TEXT_COLOR,
-                        fontSize = VERTEX_NAME_FONT_SIZE.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    val vertexTextSize = textMeasurer.measure(
-                        nameToDraw,
-                        style = vertexTextStyle.copy(fontSize = vertexTextStyle.fontSize * widgetScale)
-                    )
-                        .size.let {
-                            Offset(
-                                it.width.toFloat() / widgetScale,
-                                -it.height.toFloat() / (2 * widgetScale)
-                            )
-                        }
-
-                    drawScope.drawText( // Vertex name
-                        textMeasurer,
-                        nameToDraw,
-                        topLeft = point - vertexTextSize * 0.5f,
-                        style = vertexTextStyle
-                    )
-                }
+            // Then, the vertices are rendered
+            for (vertex in vertices) {
+                renderer.renderVertex(vertex)
             }
         }
     }
@@ -224,7 +241,7 @@ class RenderableGraph : Graph() {
         }
 
         verticesByName.remove(vertex.name)
-        verticesByName.put(newName, vertex)
+        verticesByName[newName] = vertex
         vertex.name = newName
     }
 
@@ -271,7 +288,7 @@ class RenderableGraph : Graph() {
     }
 
     // Returns the vertex by its name, literally
-    fun getVertexByName(name: String): Vertex? {
+    private fun getVertexByName(name: String): Vertex? {
         return verticesByName[name]
     }
 
@@ -399,10 +416,10 @@ class RenderableGraph : Graph() {
 
     // Returns an existing vertex or inserts a new one if a vertex with such a name didn't exist
     private fun getOrAddVertex(name: String): Vertex {
-        if (!verticesByName.containsKey(name)) {
-            return addVertex(name)
+        return if (!verticesByName.containsKey(name)) {
+            addVertex(name)
         } else {
-            return verticesByName[name]!!
+            verticesByName[name]!!
         }
     }
 

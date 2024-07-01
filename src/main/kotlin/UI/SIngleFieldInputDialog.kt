@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import graph.GraphException
-import kotlin.concurrent.thread
 
 class SingleFieldInputDialogHelper() {
     private var isOpen by mutableStateOf(false)

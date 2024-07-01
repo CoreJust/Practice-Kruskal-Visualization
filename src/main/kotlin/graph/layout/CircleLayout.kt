@@ -37,19 +37,19 @@ class CircleLayout(private val radius: Float = 0f, private val separateComponent
                     )
                 }
 
-                rescaleVertexPositionsIfNecessary(renderableGraph.vertices)
+                rescaleVertexPositionsIfNecessary(renderableGraph.vertices, renderableGraph.edges.size)
                 return
             }
         }
 
         positionVerticesInSingleCircle(renderableGraph.vertices, Offset(0.5f, 0.5f), computeActualRadius(radius))
-        rescaleVertexPositionsIfNecessary(renderableGraph.vertices)
+        rescaleVertexPositionsIfNecessary(renderableGraph.vertices, renderableGraph.edges.size)
     }
 
     // Scales vertex positions around center for the given scale
     // if it is necessary due to vertex count being too large
-    private fun rescaleVertexPositionsIfNecessary(vertices: Set<Vertex>) {
-        val rescaleFactor = sqrt(vertices.size.toDouble() / 30).toFloat()
+    private fun rescaleVertexPositionsIfNecessary(vertices: Set<Vertex>, edgesCount: Int) {
+        val rescaleFactor = sqrt(vertices.size.toDouble() / 30 + edgesCount / 100).toFloat()
         if (rescaleFactor > 1) {
             for (vertex in vertices) {
                 vertex.position = (vertex.position!! - Offset(0.5f, 0.5f)) * rescaleFactor + Offset(0.5f, 0.5f)

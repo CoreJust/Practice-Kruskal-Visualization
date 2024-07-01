@@ -22,7 +22,7 @@ open class Graph {
             for (vertex in vertices) {
                 for (edge in vertex.outcomingEdges) {
                     if (edge.to.id > vertex.id) {
-                        result.add(Edge(vertex, edge.to, edge.weight))
+                        result.add(Edge(vertex, edge.to, edge.weight, edge.color))
                     }
                 }
             }
@@ -40,7 +40,7 @@ open class Graph {
         vertices.forEach { vertexComponent[it.id] = -1 }
 
         for (startVertex in vertices) {
-            if (vertexComponent[startVertex.id] == -1) { // Checking if this vertex has no component yet
+            if (vertexComponent[startVertex.id] == -1) { // Checking if this vertex has still no component
                 // Now we add all the vertices this one is somehow related to
                 vertexComponent[startVertex.id] = currentComponent
 
@@ -74,7 +74,7 @@ open class Graph {
 
         // Now we have all the vertices marked according to their component and all that is left is to
         // put those vertices into separate lists
-        val result: Array<MutableSet<Vertex>> = Array<MutableSet<Vertex>>(currentComponent) { mutableSetOf() }
+        val result: Array<MutableSet<Vertex>> = Array(currentComponent) { mutableSetOf() }
         for (vertex in vertices) {
             result[vertexComponent[vertex.id]!!].add(vertex)
         }

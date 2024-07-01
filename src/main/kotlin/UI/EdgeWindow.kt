@@ -9,13 +9,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.*
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.ApplicationScope
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
 
@@ -52,7 +50,7 @@ class EdgeWindow() {
         }
 
         // Sets the text anchor at the current position (so that the currently last line
-        // is guaranteed to be within window no matter the number of lines printed afterwards)
+        // is guaranteed to be within window no matter the number of lines printed afterward)
         fun setAnchor(anchor: Int = text.length) {
             textAnchor = anchor
         }
@@ -86,6 +84,7 @@ fun EdgeWindowUI() {
         ) {
             OutlinedTextField(
                 value = if (EdgeWindow.textRenderTrigger < 0) TextFieldValue() else EdgeWindow.getTextFieldValue(),
+                textStyle = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold),
                 singleLine = false,
                 readOnly = true,
                 onValueChange = { },

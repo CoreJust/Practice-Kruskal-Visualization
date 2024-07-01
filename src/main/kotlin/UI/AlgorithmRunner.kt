@@ -100,6 +100,43 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
         run()
     }
 
+    // Forces the algorithm to finish immediately
+    fun toTheEnd() {
+        assert(algorithm != null)
+
+        if (!hasMoreSteps) {
+            return
+        }
+
+        pause()
+        if (currentStep < algorithmHistory.size - 1) {
+            currentStep = algorithmHistory.size - 1
+            GraphView.renderableGraph.graphColoring = algorithmHistory[currentStep]
+            GraphView.onGraphChange(GraphView.renderableGraph)
+        }
+
+        while (algorithm!!.step()) {
+            algorithmHistory.add(GraphView.renderableGraph.graphColoring)
+            currentStep += 1
+            GraphView.onGraphChange(GraphView.renderableGraph)
+        }
+
+        isRunning = false
+        hasMoreSteps = false
+    }
+
+    // Returns to the beginning of the algorithm
+    fun toTheBeginning() {
+        assert(algorithm != null)
+
+        pause()
+        currentStep = 0
+        hasMoreSteps = true
+        isRunning = false
+        GraphView.renderableGraph.graphColoring = algorithmHistory[currentStep]
+        GraphView.onGraphChange(GraphView.renderableGraph)
+    }
+
     // Does a single algorithm step
     fun stepForth() {
         assert(algorithm != null)

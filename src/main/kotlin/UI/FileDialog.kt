@@ -1,7 +1,7 @@
 /*
 * UI.FileDialog.kt
 * Contains the implementation of FileDialog function that open a file dialog and returns the chosen file.
-* Relies on java.awt.FileDialog since Compose Desktop has no own file explorer as of yet.
+* Relies on java.awt.FileDialog since Compose Desktop has no own file explorer yet.
 */
 
 package UI
