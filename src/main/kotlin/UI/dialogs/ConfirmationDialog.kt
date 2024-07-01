@@ -1,11 +1,11 @@
 /*
-* UI.ConfirmationDialog.kt
+* UI.dialogs.ConfirmationDialog.kt
 * Contains the function ConfirmationDialogUI that allows to create a dialog with a given alert message.
 * Also, contains a helper class ConfirmationDialogHelper that allows to create that kind of dialog from
 * a non-composable context (by placing its show() function call somewhere within composable context)
 */
 
-package UI
+package UI.dialogs
 
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button

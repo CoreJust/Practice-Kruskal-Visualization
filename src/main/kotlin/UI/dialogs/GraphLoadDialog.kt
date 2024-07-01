@@ -1,10 +1,10 @@
 /*
-* UI.GraphLoadDialog.kt
+* UI.dialogs.GraphLoadDialog.kt
 * Contains the implementation of GraphLoadDialogUI function that opens and controls a file dialog to choose a file
 * from which the graph would be loaded.
 */
 
-package UI
+package UI.dialogs
 
 import androidx.compose.ui.awt.ComposeWindow
 import file.openGraphFile

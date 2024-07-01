@@ -1,13 +1,14 @@
 /*
-* UI.GraphInsertionDialog.kt
+* UI.dialogs.GraphInsertionDialog.kt
 * Contains the function GraphInsertionDialogUI that allows to create a dialog that allows to create
 * a graph according to some specific pattern.
 * Also, this file contains a helper class GraphInfoDialogHelper that allows to create that kind of dialog from
 * a non-composable context (by placing its show() function call somewhere within composable context)
 */
 
-package UI
+package UI.dialogs
 
+import UI.GraphView
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,8 +17,11 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -58,6 +62,8 @@ fun GraphInsertionDialogUI(onDismiss: () -> Unit) {
     var firstPartSize by remember { mutableStateOf("") }
     var secondPartSize by remember { mutableStateOf("") }
 
+    val focusRequester = FocusRequester()
+
     Dialog(
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(dismissOnClickOutside = false, dismissOnBackPress = false)
@@ -65,9 +71,24 @@ fun GraphInsertionDialogUI(onDismiss: () -> Unit) {
         Card (
             shape = RoundedCornerShape(12.dp),
             elevation = 8.dp,
+            border = BorderStroke(width = 3.dp, color = Color.Blue),
             modifier = Modifier
-                .padding(8.dp),
-            border = BorderStroke(width = 3.dp, color = Color.Blue)
+                .padding(8.dp)
+                .onPreviewKeyEvent {
+                    if (it.type == KeyEventType.KeyDown && it.key == Key.Enter) {
+                        onConfirmation(
+                            selectedGraphType = selectedGraphType,
+                            graphSize = graphSize.toIntOrNull() ?: 1,
+                            firstPartSize = firstPartSize.toIntOrNull() ?: 2,
+                            secondPartSize = secondPartSize.toIntOrNull() ?: 2
+                        )
+                        onDismiss()
+
+                        true
+                    } else {
+                        false
+                    }
+                }
         ) {
             Column (
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -111,7 +132,8 @@ fun GraphInsertionDialogUI(onDismiss: () -> Unit) {
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         onValueChange = { firstPartSize = it },
-                        label = { Text("First part size") }
+                        label = { Text("First part size") },
+                        modifier = Modifier.focusRequester(focusRequester)
                     )
 
                     OutlinedTextField(
@@ -127,8 +149,13 @@ fun GraphInsertionDialogUI(onDismiss: () -> Unit) {
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         onValueChange = { graphSize = it },
-                        label = { Text("Number of vertices") }
+                        label = { Text("Number of vertices") },
+                        modifier = Modifier.focusRequester(focusRequester)
                     )
+                }
+
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
                 }
 
                 Row {

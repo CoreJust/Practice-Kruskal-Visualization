@@ -1,11 +1,11 @@
 /*
-* UI.AlertDialog.kt
+* UI.dialogs.AlertDialog.kt
 * Contains the function AlertDialogUI that allows to create a dialog with a given alert message.
 * Also, this file contains a helper class AlertDialogHelper that allows to create that kind of dialog from
 * a non-composable context (by placing its show() function call somewhere within composable context)
 */
 
-package UI
+package UI.dialogs
 
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button

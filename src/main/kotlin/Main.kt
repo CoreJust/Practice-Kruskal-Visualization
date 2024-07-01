@@ -5,7 +5,11 @@
 * algorithm).
 */
 
-import UI.*
+import UI.ConsoleUI
+import UI.EdgeWindowUI
+import UI.GraphView
+import UI.GraphViewUI
+import UI.dialogs.*
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
@@ -64,8 +68,8 @@ fun main() = application {
                     Item("Algorithm options", onClick = { ComingSoonDialogHelper.open() })
                 }
                 Menu("Info", mnemonic = 'I') {
-                    Item("Guide", onClick = { ComingSoonDialogHelper.open() })
-                    Item("About program", onClick = { ComingSoonDialogHelper.open() })
+                    Item("Guide", onClick = { GuideDialogHelper.open() })
+                    Item("About program", onClick = { ProgramInfoDialogHelper.open() })
                 }
             }
 
