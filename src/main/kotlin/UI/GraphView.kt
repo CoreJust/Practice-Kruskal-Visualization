@@ -7,6 +7,7 @@
 
 package UI
 
+import UI.dialogs.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -445,6 +446,8 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
 
     GraphInfoDialogHelper.show()
     GraphInsertionDialogHelper.show()
+    ProgramInfoDialogHelper.show()
+    GuideDialogHelper.show()
     ComingSoonDialogHelper.show()
 
     actionConfirmationDialogHelper.show()

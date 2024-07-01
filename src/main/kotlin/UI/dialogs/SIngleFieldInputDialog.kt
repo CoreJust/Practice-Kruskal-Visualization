@@ -1,13 +1,14 @@
 /*
-* UI.SingleFieldInputDialog.kt
+* UI.dialogs.SingleFieldInputDialog.kt
 * Contains the function SingleFieldInputDialogUI that allows to create a dialog with a single input field
 * to retrieve some information from the user.
 * Also, contains a helper class SingleFieldInputDialogHelper that allows to create that kind of dialog from
 * a non-composable context (by placing its show() function call somewhere within composable context)
 */
 
-package UI
+package UI.dialogs
 
+import UI.GraphView
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

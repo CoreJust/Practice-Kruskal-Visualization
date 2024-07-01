@@ -1,10 +1,10 @@
 /*
-* UI.FileDialog.kt
+* UI.dialogs.FileDialog.kt
 * Contains the implementation of FileDialog function that open a file dialog and returns the chosen file.
 * Relies on java.awt.FileDialog since Compose Desktop has no own file explorer yet.
 */
 
-package UI
+package UI.dialogs
 
 import androidx.compose.ui.awt.ComposeWindow
 import java.awt.FileDialog

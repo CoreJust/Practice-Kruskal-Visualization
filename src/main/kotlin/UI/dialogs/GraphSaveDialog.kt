@@ -1,10 +1,10 @@
 /*
-* UI.GraphSaveDialog.kt
+* UI.dialogs.GraphSaveDialog.kt
 * Contains the implementation of GraphSaveDialogUI function that opens and controls a file dialog to choose a file
 * to which the graph would be saved.
 */
 
-package UI
+package UI.dialogs
 
 import androidx.compose.ui.awt.ComposeWindow
 import file.openGraphFile

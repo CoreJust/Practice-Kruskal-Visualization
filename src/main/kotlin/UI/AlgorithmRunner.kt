@@ -7,6 +7,7 @@
 
 package UI
 
+import UI.dialogs.AlertDialogHelper
 import algorithm.AlgorithmException
 import algorithm.Kruskal
 import graph.GraphColoring

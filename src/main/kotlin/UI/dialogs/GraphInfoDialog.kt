@@ -1,13 +1,14 @@
 /*
-* UI.GraphInfoDialog.kt
+* UI.dialogs.GraphInfoDialog.kt
 * Contains the function GraphInfoDialogUI that allows to create a dialog that displays some information on
 * the current graph.
 * Also, this file contains a helper class GraphInfoDialogHelper that allows to create that kind of dialog from
 * a non-composable context (by placing its show() function call somewhere within composable context)
 */
 
-package UI
+package UI.dialogs
 
+import UI.GraphView
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
