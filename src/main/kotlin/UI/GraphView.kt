@@ -139,7 +139,7 @@ class GraphView {
                     if (activeVertex == null || clickedVertex.id == activeVertex?.id) {
                         renderableGraph.removeVertex(clickedVertex) // Remove a vertex upon RMB click
                         if (clickedVertex.id == activeVertex?.id) {
-                            activeVertex = null // This vertex was just deleted and we cannot just call setActiveVertex because it is already non-existent
+                            activeVertex = null // This vertex was just deleted, and we cannot just call setActiveVertex because it is already non-existent
                             rerenderGraph()
                         } else {
                             setActiveVertex(null) // Reset the active vertex when deleting another vertex

@@ -51,7 +51,15 @@ class SingleFieldInputDialogHelper() {
                 message = message,
                 label = label,
                 defaultText = defaultText,
-                onConfirmation = { onConfirmation(it); isOpen = false },
+                onConfirmation = {
+                    try {
+                        onConfirmation(it)
+                    } catch (e: GraphException) {
+                        GraphView.alertDialogHelper.open("Graph exception", e.message ?: "")
+                    }
+
+                    isOpen = false
+                },
                 onDismiss = { isOpen = false }
             )
         }
@@ -125,12 +133,7 @@ fun SingleFieldInputDialogUI(title: String, message: String? = null, label: Stri
 
                     Button(
                         onClick = {
-                            try {
-                                onConfirmation(inputFieldText.text)
-                            } catch (e: GraphException) {
-                                GraphView.alertDialogHelper.open("Graph exception", e.message ?: "")
-                                onDismiss()
-                            }
+                            onConfirmation(inputFieldText.text)
                         },
                         modifier = Modifier.padding(7.dp)
                     ) {
