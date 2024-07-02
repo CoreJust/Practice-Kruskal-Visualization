@@ -65,11 +65,12 @@ fun main() = application {
                 }
                 Menu("Options", mnemonic = 'O') {
                     Item("Graph render options", onClick = { GraphRenderOptionsDialogHelper.open() }, shortcut = KeyShortcut(Key.G, ctrl = true))
-                    Item("Algorithm options", onClick = { ComingSoonDialogHelper.open() }, shortcut = KeyShortcut(Key.A, ctrl = true))
+                    Item("Algorithm options", onClick = { AlgorithmOptionsDialogHelper.open() }, shortcut = KeyShortcut(Key.A, ctrl = true))
                 }
                 Menu("Info", mnemonic = 'I') {
                     Item("Guide", onClick = { GuideDialogHelper.open() })
                     Item("About program", onClick = { ProgramInfoDialogHelper.open() })
+                    Item("Marks", onClick = { ComingSoonDialogHelper.open() })
                 }
             }
 

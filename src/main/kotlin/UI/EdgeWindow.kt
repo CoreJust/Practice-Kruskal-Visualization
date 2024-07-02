@@ -1,5 +1,6 @@
 package UI
 
+import algorithm.AlgorithmOptions
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.OutlinedTextField
@@ -76,7 +77,7 @@ class EdgeWindow() {
 
 @Composable
 fun EdgeWindowUI() {
-    if (EdgeWindow.isOpen) {
+    if (EdgeWindow.isOpen && AlgorithmOptions.useEdgeWindow) {
         Window(
             onCloseRequest = { EdgeWindow.isOpen = false },
             title = "Edge list",
@@ -86,7 +87,7 @@ fun EdgeWindowUI() {
         ) {
             OutlinedTextField(
                 value = if (EdgeWindow.textRenderTrigger < 0) TextFieldValue() else EdgeWindow.getTextFieldValue(),
-                textStyle = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold),
+                textStyle = TextStyle(fontSize = AlgorithmOptions.edgeWindowTextSize.sp, fontWeight = FontWeight.Bold),
                 singleLine = false,
                 readOnly = true,
                 onValueChange = { },

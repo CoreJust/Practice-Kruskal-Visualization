@@ -9,6 +9,7 @@ package UI
 
 import CommandProcessor
 import UI.dialogs.AlertDialogHelper
+import algorithm.AlgorithmOptions
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -20,13 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 // Class with static API for simulating console
 class Console {
@@ -76,20 +75,17 @@ class Console {
 // The composable function that displays the actual console
 @Composable
 fun RowScope.ConsoleUI(isEditMode: Boolean, onModeChangeFailure: () -> Unit) {
-    val algorithmAlertDialogHelper by remember { mutableStateOf(AlertDialogHelper()) }
-    val algorithmRunner by remember { mutableStateOf(AlgorithmRunner(algorithmAlertDialogHelper)) }
-
     var isAlgorithmRunning by remember { mutableStateOf(false) }
 
     // Reloading the algorithm runner if necessary
     if (isEditMode != Console.lastEditMode) {
         if (!isEditMode) {
-            if (!algorithmRunner.initAlgorithm()) {
+            if (!AlgorithmRunner.initAlgorithm()) {
                 onModeChangeFailure()
                 return
             }
         } else {
-            algorithmRunner.destroyAlgorithm()
+            AlgorithmRunner.destroyAlgorithm()
         }
     }
 
@@ -114,6 +110,7 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onModeChangeFailure: () -> Unit) {
             singleLine = false,
             readOnly = !isEditMode,
             shape = RoundedCornerShape(10.dp),
+            textStyle = TextStyle(fontSize = if (Console.lastEditMode) 16.sp else AlgorithmOptions.consoleTextSize.sp),
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(10f)
@@ -138,7 +135,7 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onModeChangeFailure: () -> Unit) {
                 Box(modifier = Modifier.fillMaxHeight().weight(1f).padding(horizontal = 5.dp)) {
                     Button(onClick = {
                         isAlgorithmRunning = false
-                        algorithmRunner.toTheBeginning()
+                        AlgorithmRunner.toTheBeginning()
                     }, modifier = Modifier
                         .padding(bottom = bottomButtonPadding)
                         .clip(shape = RoundedCornerShape(topStart = buttonRoundness, bottomStart = buttonRoundness))
@@ -152,9 +149,9 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onModeChangeFailure: () -> Unit) {
                 Box(modifier = Modifier.fillMaxHeight().weight(1f).padding(horizontal = 3.dp)) {
                     Button(onClick = {
                         if (isAlgorithmRunning) {
-                            algorithmRunner.decelerate()
+                            AlgorithmRunner.decelerate()
                         } else {
-                            algorithmRunner.stepBack()
+                            AlgorithmRunner.stepBack()
                         }
                     }, modifier = Modifier
                         .padding(bottom = bottomButtonPadding)
@@ -171,9 +168,9 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onModeChangeFailure: () -> Unit) {
                         isAlgorithmRunning = !isAlgorithmRunning
 
                         if (isAlgorithmRunning) {
-                            algorithmRunner.run()
+                            AlgorithmRunner.run()
                         } else {
-                            algorithmRunner.pause()
+                            AlgorithmRunner.pause()
                         }
                     }, modifier = Modifier
                         .padding(bottom = bottomButtonPadding)
@@ -187,9 +184,9 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onModeChangeFailure: () -> Unit) {
                 Box(modifier = Modifier.fillMaxHeight().weight(1f).padding(horizontal = 5.dp)) {
                     Button(onClick = {
                         if (isAlgorithmRunning) {
-                            algorithmRunner.accelerate()
+                            AlgorithmRunner.accelerate()
                         } else {
-                            algorithmRunner.stepForth()
+                            AlgorithmRunner.stepForth()
                         }
                     }, modifier = Modifier
                         .padding(bottom = bottomButtonPadding)
@@ -204,7 +201,7 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onModeChangeFailure: () -> Unit) {
                 Box(modifier = Modifier.fillMaxHeight().weight(1f).padding(horizontal = 3.dp)) {
                     Button(onClick = {
                         isAlgorithmRunning = false
-                        algorithmRunner.toTheEnd()
+                        AlgorithmRunner.toTheEnd()
                     }, modifier = Modifier
                         .padding(bottom = bottomButtonPadding)
                         .clip(shape = RoundedCornerShape(topEnd = buttonRoundness, bottomEnd = buttonRoundness))
@@ -217,7 +214,4 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onModeChangeFailure: () -> Unit) {
             }
         }
     }
-
-    // Calling these functions here allow the helpers to be shown
-    algorithmAlertDialogHelper.show()
 }

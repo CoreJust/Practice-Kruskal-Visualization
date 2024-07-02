@@ -436,11 +436,14 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
     GraphView.vertexNameInputDialogHelper.show()
     GraphView.edgeWeightInputDialogHelper.show()
 
+    AlgorithmRunner.alertDialogHelper.show()
+
     GraphInfoDialogHelper.show()
     GraphInsertionDialogHelper.show()
     ProgramInfoDialogHelper.show()
     GuideDialogHelper.show()
     GraphRenderOptionsDialogHelper.show()
+    AlgorithmOptionsDialogHelper.show()
     ComingSoonDialogHelper.show()
 
     actionConfirmationDialogHelper.show()
