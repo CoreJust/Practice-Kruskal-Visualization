@@ -17,7 +17,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import graph.layout.Layout
 
 class RenderableGraph : Graph() {
     companion object {
@@ -25,12 +24,6 @@ class RenderableGraph : Graph() {
         val ACTIVE_COLOR = Color.Red
         val TEXT_COLOR = Color.Black
         val WEIGHT_BACKGROUND_COLOR = Color.Gray.compositeOver(Color.White)
-
-        const val VERTEX_SIZE = 0.028f
-        const val EDGE_WIDTH = 0.005f
-        const val VERTEX_NAME_FONT_SIZE = 0.04f
-        const val WEIGHT_FONT_SIZE = 0.03f
-        const val WEIGHT_POSITION = 0.5f // Controls how far the weight is positioned on the edge
     }
 
     private var verticesByName: MutableMap<String, Vertex> = mutableMapOf()
@@ -42,27 +35,20 @@ class RenderableGraph : Graph() {
 
     // Internal auxiliary class for graph rendering
     private class GraphRenderer(private val drawScope: DrawScope, private val textMeasurer: TextMeasurer, private val widgetScale: Float) {
-        companion object {
-            private val vertexTextStyle = TextStyle.Default.copy(
-                color = TEXT_COLOR,
-                fontSize = VERTEX_NAME_FONT_SIZE.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            private val weightTextStyle = TextStyle.Default.copy(
-                color = TEXT_COLOR,
-                fontSize = WEIGHT_FONT_SIZE.sp
-            )
-        }
-
         // Renders a single graph vertex
         fun renderVertex(vertex: Vertex) {
             if (vertex.position == null) return
 
+            val vertexTextStyle = TextStyle.Default.copy(
+                color = TEXT_COLOR,
+                fontSize = GraphRenderOptions.VERTEX_NAME_FONT_SIZE.sp,
+                fontWeight = FontWeight.Bold
+            )
+
             // Vertex itself
             drawScope.drawCircle(
                 color = vertex.color,
-                radius = VERTEX_SIZE,
+                radius = GraphRenderOptions.VERTEX_SIZE,
                 center = vertex.position!!
             )
 
@@ -77,20 +63,25 @@ class RenderableGraph : Graph() {
         fun renderEdge(from: Vertex, to: Vertex, weight: String, color: Color) {
             if (from.id >= to.id || from.position == null || to.position == null) return
 
+            val weightTextStyle = TextStyle.Default.copy(
+                color = TEXT_COLOR,
+                fontSize = GraphRenderOptions.WEIGHT_FONT_SIZE.sp
+            )
+
             val toPosition = to.position!!
             val fromPosition = from.position!!
             drawScope.drawLine( // The edge itself
                 color = color,
                 start = fromPosition,
                 end = toPosition,
-                strokeWidth = EDGE_WIDTH
+                strokeWidth = GraphRenderOptions.EDGE_WIDTH
             )
 
             // Edge weight
-            val weightPosition = lerp(fromPosition, toPosition, WEIGHT_POSITION)
+            val weightPosition = lerp(fromPosition, toPosition, GraphRenderOptions.WEIGHT_POSITION)
             drawScope.drawCircle( // The background for the weight
                 color = WEIGHT_BACKGROUND_COLOR,
-                radius = VERTEX_SIZE * 0.65f,
+                radius = GraphRenderOptions.VERTEX_SIZE * 0.65f,
                 center = weightPosition
             )
 
@@ -160,8 +151,8 @@ class RenderableGraph : Graph() {
     }
 
     // Assign positions to all the vertices
-    fun positionVertices(layout: Layout) {
-        layout.positionVertices(this)
+    fun positionVertices() {
+        GraphRenderOptions.layout.positionVertices(this)
     }
 
     // Changes all the colors to the default ones
@@ -278,7 +269,7 @@ class RenderableGraph : Graph() {
         for (vertex in vertices) {
             val vertexPosition = vertex.position ?: continue
             val distance = (vertexPosition - position).getDistance()
-            if (distance <= VERTEX_SIZE && bestDistance > distance) {
+            if (distance <= GraphRenderOptions.VERTEX_SIZE && bestDistance > distance) {
                 result = vertex
                 bestDistance = distance
             }

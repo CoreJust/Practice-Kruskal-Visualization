@@ -9,12 +9,11 @@ package UI.dialogs
 import androidx.compose.ui.awt.ComposeWindow
 import file.openGraphFile
 import graph.RenderableGraph
-import graph.layout.CircleLayout
 import java.awt.FileDialog
 
 fun GraphLoadDialogUI(window: ComposeWindow, onGraphChange: (RenderableGraph) -> Unit) {
     val allowedExtensions = listOf(".tgf", ".gml")
     val openedFile = FileDialog(window, "Choose a graph file", allowedExtensions, FileDialog.LOAD) ?: return
-    val loadedGraph = openGraphFile(openedFile).loadGraph().also { it.positionVertices(CircleLayout()) }
+    val loadedGraph = openGraphFile(openedFile).loadGraph().also { it.positionVertices() }
     onGraphChange(loadedGraph)
 }

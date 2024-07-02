@@ -6,7 +6,6 @@ import UI.GraphView
 import androidx.compose.ui.graphics.Color
 import graph.Edge
 import graph.RenderableGraph
-import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 

@@ -44,7 +44,7 @@ class ConfirmationDialogHelper() {
 }
 
 @Composable
-fun ConfirmationDialogUI(title: String, message: String, onDismiss: () -> Unit, onConfirmation: () -> Unit) {
+private fun ConfirmationDialogUI(title: String, message: String, onDismiss: () -> Unit, onConfirmation: () -> Unit) {
     AlertDialog(
         text = { Text(message) },
         title = { Text(title) },

@@ -21,7 +21,7 @@ import kotlin.math.sqrt
 *          If radius is 0, then it is given the default value.
 *   separateComponents is a flag. If it is set, then separate components are adjusted into separate layouts.
 */
-class CircleLayout(private val radius: Float = 0f, private val separateComponents: Boolean = true) : Layout() {
+class CircleLayout(var radius: Float = 0f, var separateComponents: Boolean = true, var vertexTolerance: Float = 30f, var edgeTolerance: Float = 90f) : Layout() {
     override fun positionVertices(renderableGraph: RenderableGraph) {
         // First of all, we reset the vertices - circle layout wouldn't tolerate preset positions
         resetVertexPositions(renderableGraph.vertices)
@@ -50,7 +50,7 @@ class CircleLayout(private val radius: Float = 0f, private val separateComponent
     // Scales vertex positions around center for the given scale
     // if it is necessary due to vertex count being too large
     private fun rescaleVertexPositionsIfNecessary(vertices: Set<Vertex>, edgesCount: Int) {
-        val rescaleFactor = sqrt(vertices.size.toDouble() / 30 + edgesCount / 100).toFloat()
+        val rescaleFactor = sqrt(vertices.size.toDouble() / vertexTolerance + edgesCount / edgeTolerance).toFloat()
         if (rescaleFactor > 1) {
             for (vertex in vertices) {
                 vertex.position = (vertex.position!! - Offset(0.5f, 0.5f)) * rescaleFactor + Offset(0.5f, 0.5f)

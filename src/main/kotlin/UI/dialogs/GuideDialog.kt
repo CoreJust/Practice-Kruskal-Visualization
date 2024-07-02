@@ -7,23 +7,17 @@
 
 package UI.dialogs
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.TextField
+import UI.utils.CustomDialog
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 
 class GuideDialogHelper {
     companion object {
@@ -45,33 +39,22 @@ class GuideDialogHelper {
 }
 
 @Composable
-fun GuideDialogUI(onDismiss: () -> Unit) {
+private fun GuideDialogUI(onDismiss: () -> Unit) {
     val guideContents = buildAnnotatedString {
         append("Empty")
     }
 
-    Dialog(
+    CustomDialog(
         onDismissRequest = { onDismiss() },
-        properties = DialogProperties(dismissOnClickOutside = true, dismissOnBackPress = true)
+        dismissible = true,
+        alignCenterVertically = true,
+        width = 800.dp,
+        height = 600.dp
     ) {
-        Card (
-            shape = RoundedCornerShape(12.dp),
-            elevation = 8.dp,
-            modifier = Modifier
-                .padding(8.dp)
-                .width(800.dp)
-                .height(600.dp),
-            border = BorderStroke(width = 3.dp, color = Color.Blue)
-        ) {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                TextField(
-                    value = TextFieldValue(guideContents),
-                    singleLine = false,
-                    readOnly = true,
-                    onValueChange = { },
-                    modifier = Modifier.fillMaxSize().align(Alignment.Center)
-                )
-            }
-        }
+        Text(
+            text = guideContents,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }

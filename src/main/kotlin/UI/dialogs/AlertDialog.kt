@@ -41,7 +41,7 @@ class AlertDialogHelper() {
 }
 
 @Composable
-fun AlertDialogUI(title: String, message: String, onDismiss: () -> Unit) {
+private fun AlertDialogUI(title: String, message: String, onDismiss: () -> Unit) {
     AlertDialog(
         text = { Text(message) },
         title = { Text(title) },

@@ -9,28 +9,24 @@
 package UI.dialogs
 
 import UI.GraphView
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import UI.utils.CustomDialog
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import graph.RenderableGraph
 import graph.Vertex
-import graph.layout.CircleLayout
 
 class GraphInsertionDialogHelper {
     companion object {
@@ -53,7 +49,7 @@ class GraphInsertionDialogHelper {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun GraphInsertionDialogUI(onDismiss: () -> Unit) {
+private fun GraphInsertionDialogUI(onDismiss: () -> Unit) {
     val graphTypes = listOf("Complete graph", "Null graph", "Cycle graph", "Complete bipartite graph")
     var isGraphTypeSelectionExpanded by remember { mutableStateOf(false) }
     var selectedGraphType by remember { mutableStateOf(graphTypes[0]) }
@@ -64,122 +60,104 @@ fun GraphInsertionDialogUI(onDismiss: () -> Unit) {
 
     val focusRequester = FocusRequester()
 
-    Dialog(
+    CustomDialog(
         onDismissRequest = { onDismiss() },
-        properties = DialogProperties(dismissOnClickOutside = false, dismissOnBackPress = false)
+        dismissible = false,
+        onEnterPress = {
+            onConfirmation(
+                selectedGraphType = selectedGraphType,
+                graphSize = graphSize.toIntOrNull() ?: 1,
+                firstPartSize = firstPartSize.toIntOrNull() ?: 2,
+                secondPartSize = secondPartSize.toIntOrNull() ?: 2
+            )
+
+            onDismiss()
+        }
     ) {
-        Card (
-            shape = RoundedCornerShape(12.dp),
-            elevation = 8.dp,
-            border = BorderStroke(width = 3.dp, color = Color.Blue),
-            modifier = Modifier
-                .padding(8.dp)
-                .onPreviewKeyEvent {
-                    if (it.type == KeyEventType.KeyDown && it.key == Key.Enter) {
-                        onConfirmation(
-                            selectedGraphType = selectedGraphType,
-                            graphSize = graphSize.toIntOrNull() ?: 1,
-                            firstPartSize = firstPartSize.toIntOrNull() ?: 2,
-                            secondPartSize = secondPartSize.toIntOrNull() ?: 2
-                        )
-                        onDismiss()
+        Text(text = "Create a new graph", fontWeight = FontWeight.Bold, fontSize = 28.sp)
+        Spacer(Modifier.height(10.dp))
 
-                        true
-                    } else {
-                        false
-                    }
-                }
+        ExposedDropdownMenuBox(
+            expanded = isGraphTypeSelectionExpanded,
+            onExpandedChange = { isGraphTypeSelectionExpanded = it }
         ) {
-            Column (
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth().padding(9.dp)
+            TextField(
+                value = selectedGraphType,
+                readOnly = true,
+                onValueChange = { },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isGraphTypeSelectionExpanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors()
+            )
+
+            ExposedDropdownMenu(
+                expanded = isGraphTypeSelectionExpanded,
+                onDismissRequest = { isGraphTypeSelectionExpanded = false }
             ) {
-                Text(text = "Create a new graph", fontWeight = FontWeight.Bold, fontSize = 28.sp)
-                Spacer(Modifier.height(10.dp))
-
-                ExposedDropdownMenuBox(
-                    expanded = isGraphTypeSelectionExpanded,
-                    onExpandedChange = { isGraphTypeSelectionExpanded = it }
-                ) {
-                    TextField(
-                        value = selectedGraphType,
-                        readOnly = true,
-                        onValueChange = { },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isGraphTypeSelectionExpanded) },
-                        colors = ExposedDropdownMenuDefaults.textFieldColors()
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = isGraphTypeSelectionExpanded,
-                        onDismissRequest = { isGraphTypeSelectionExpanded = false }
-                    ) {
-                        graphTypes.forEach { graphType ->
-                            DropdownMenuItem(
-                                onClick = {
-                                    selectedGraphType = graphType
-                                    isGraphTypeSelectionExpanded = false
-                                }
-                            ) {
-                                Text(graphType)
-                            }
-                        }
-                    }
-                }
-
-                if (selectedGraphType == graphTypes[3]) { // Complete bipartite graph
-                    OutlinedTextField(
-                        value = firstPartSize,
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        onValueChange = { firstPartSize = it },
-                        label = { Text("First part size") },
-                        modifier = Modifier.focusRequester(focusRequester)
-                    )
-
-                    OutlinedTextField(
-                        value = secondPartSize,
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        onValueChange = { secondPartSize = it },
-                        label = { Text("Second part size") }
-                    )
-                } else {
-                    OutlinedTextField(
-                        value = graphSize,
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        onValueChange = { graphSize = it },
-                        label = { Text("Number of vertices") },
-                        modifier = Modifier.focusRequester(focusRequester)
-                    )
-                }
-
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
-
-                Row {
-                    Button(
-                        onClick = { onDismiss() },
-                        modifier = Modifier.padding(7.dp)
-                    ) {
-                        Text("Cancel")
-                    }
-
-                    Button(
+                graphTypes.forEach { graphType ->
+                    DropdownMenuItem(
                         onClick = {
-                            onConfirmation(
-                                selectedGraphType = selectedGraphType,
-                                graphSize = graphSize.toIntOrNull() ?: 1,
-                                firstPartSize = firstPartSize.toIntOrNull() ?: 2,
-                                secondPartSize = secondPartSize.toIntOrNull() ?: 2
-                            )
-                            onDismiss()
-                        }, modifier = Modifier.padding(7.dp)
+                            selectedGraphType = graphType
+                            isGraphTypeSelectionExpanded = false
+                        }
                     ) {
-                        Text("Confirm")
+                        Text(graphType)
                     }
                 }
+            }
+        }
+
+        if (selectedGraphType == graphTypes[3]) { // Complete bipartite graph
+            OutlinedTextField(
+                value = firstPartSize,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                onValueChange = { firstPartSize = it },
+                label = { Text("First part size") },
+                modifier = Modifier.focusRequester(focusRequester)
+            )
+
+            OutlinedTextField(
+                value = secondPartSize,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                onValueChange = { secondPartSize = it },
+                label = { Text("Second part size") }
+            )
+        } else {
+            OutlinedTextField(
+                value = graphSize,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                onValueChange = { graphSize = it },
+                label = { Text("Number of vertices") },
+                modifier = Modifier.focusRequester(focusRequester)
+            )
+        }
+
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
+
+        Row {
+            Button(
+                onClick = { onDismiss() },
+                modifier = Modifier.padding(7.dp)
+            ) {
+                Text("Cancel")
+            }
+
+            Button(
+                onClick = {
+                    onConfirmation(
+                        selectedGraphType = selectedGraphType,
+                        graphSize = graphSize.toIntOrNull() ?: 1,
+                        firstPartSize = firstPartSize.toIntOrNull() ?: 2,
+                        secondPartSize = secondPartSize.toIntOrNull() ?: 2
+                    )
+                    onDismiss()
+                }, modifier = Modifier.padding(7.dp)
+            ) {
+                Text("Confirm")
             }
         }
     }
@@ -224,7 +202,7 @@ private fun onConfirmation(selectedGraphType: String, graphSize: Int, firstPartS
             }
         }
 
-        result.positionVertices(CircleLayout())
+        result.positionVertices()
     }
 
     GraphView.onGraphChange(result)

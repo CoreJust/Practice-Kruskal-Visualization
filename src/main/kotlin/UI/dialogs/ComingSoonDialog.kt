@@ -7,25 +7,18 @@
 
 package UI.dialogs
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
+import UI.utils.CustomDialog
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 
 class ComingSoonDialogHelper {
     companion object {
@@ -47,28 +40,19 @@ class ComingSoonDialogHelper {
 }
 
 @Composable
-fun ComingSoonDialogUI(onDismiss: () -> Unit) {
-    Dialog(
+private fun ComingSoonDialogUI(onDismiss: () -> Unit) {
+    CustomDialog(
         onDismissRequest = { onDismiss() },
-        properties = DialogProperties(dismissOnClickOutside = true, dismissOnBackPress = true)
+        dismissible = true,
+        alignCenterVertically = true,
+        width = 440.dp,
+        height = 240.dp
     ) {
-        Card (
-            shape = RoundedCornerShape(12.dp),
-            elevation = 8.dp,
-            modifier = Modifier
-                .padding(8.dp)
-                .width(440.dp)
-                .height(240.dp),
-            border = BorderStroke(width = 3.dp, color = Color.Blue)
-        ) {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                Text(
-                    text = "Coming soon",
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight.Bold,
-                    style = TextStyle(brush = Brush.linearGradient(listOf(Color.Magenta, Color.Blue, Color.Magenta)))
-                )
-            }
-        }
+        Text(
+            text = "Coming soon",
+            fontSize = 40.sp,
+            fontWeight = FontWeight.Bold,
+            style = TextStyle(brush = Brush.linearGradient(listOf(Color.Magenta, Color.Blue, Color.Magenta)))
+        )
     }
 }

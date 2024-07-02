@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.sp
 import graph.GraphException
 import graph.RenderableGraph
 import graph.Vertex
-import graph.layout.CircleLayout
 import kotlin.math.exp
 
 class GraphView {
@@ -75,7 +74,7 @@ class GraphView {
 
         // Automatically repositions all the vertices according to the current layout
         fun repositionVertices() {
-            renderableGraph.positionVertices(CircleLayout())
+            renderableGraph.positionVertices()
             rerenderGraph()
         }
 
@@ -318,7 +317,6 @@ class GraphView {
 
 @Composable
 fun RowScope.GraphViewUI(isEditMode: Boolean) {
-    var alertMessage by remember { mutableStateOf("") }
     val actionConfirmationDialogHelper by remember { mutableStateOf(ConfirmationDialogHelper()) }
     val canvasFocusRequester = remember { FocusRequester() }
 
@@ -375,7 +373,10 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
                                     PointerEventType.Move -> GraphView.handleMouseMove(mouseOffset)
                                 }
                             } catch (e: GraphException) {
-                                alertMessage = e.message ?: ""
+                                GraphView.alertDialogHelper.open(
+                                    title = "Graph exception",
+                                    message = e.message ?: ""
+                                )
                             }
                         }
                     }
@@ -430,15 +431,6 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
         }
     }
 
-    // The alert in case something went wrong while editing the graph
-    if (alertMessage.isNotEmpty()) {
-        AlertDialogUI(
-            title = "Graph exception",
-            message = alertMessage,
-            onDismiss = { alertMessage = "" }
-        )
-    }
-
     // Calling these functions here allow the helpers to be shown
     GraphView.alertDialogHelper.show()
     GraphView.vertexNameInputDialogHelper.show()
@@ -448,6 +440,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
     GraphInsertionDialogHelper.show()
     ProgramInfoDialogHelper.show()
     GuideDialogHelper.show()
+    GraphRenderOptionsDialogHelper.show()
     ComingSoonDialogHelper.show()
 
     actionConfirmationDialogHelper.show()
