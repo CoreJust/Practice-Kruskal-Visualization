@@ -10,8 +10,10 @@ package UI
 import UI.dialogs.AlertDialogHelper
 import algorithm.AlgorithmException
 import algorithm.Kruskal
+import androidx.compose.ui.text.AnnotatedString
 import graph.GraphColoring
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.concurrent.schedule
 
 class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
@@ -19,6 +21,8 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
 
     // The history of previous graph color states that allows making a step back
     private val algorithmHistory: ArrayList<GraphColoring> = arrayListOf()
+    private val consoleHistory: ArrayList<AnnotatedString> = arrayListOf()
+    private val edgeWindowHistory: ArrayList<AnnotatedString> = arrayListOf()
     private var currentStep = 0
 
     private var hasMoreSteps = true
@@ -35,6 +39,8 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
             algorithm = Kruskal(GraphView.renderableGraph)
             algorithm!!.init()
             algorithmHistory.add(GraphView.renderableGraph.graphColoring)
+            consoleHistory.add(AnnotatedString(""))
+            edgeWindowHistory.add(AnnotatedString(""))
             currentStep = 0
             hasMoreSteps = true
             isRunning = false
@@ -59,6 +65,8 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
 
         algorithm = null
         algorithmHistory.clear()
+        consoleHistory.clear()
+        edgeWindowHistory.clear()
         currentStep = 0
         hasMoreSteps = false
 
@@ -121,14 +129,12 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
         pause()
         if (currentStep < algorithmHistory.size - 1) {
             currentStep = algorithmHistory.size - 1
-            GraphView.renderableGraph.graphColoring = algorithmHistory[currentStep]
-            GraphView.onGraphChange(GraphView.renderableGraph)
+            loadFromHistory(currentStep)
         }
 
         while (algorithm!!.step()) {
-            algorithmHistory.add(GraphView.renderableGraph.graphColoring)
+            addCurrentStateToHistory()
             currentStep += 1
-            GraphView.onGraphChange(GraphView.renderableGraph)
         }
 
         isRunning = false
@@ -143,8 +149,7 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
         currentStep = 0
         hasMoreSteps = true
         isRunning = false
-        GraphView.renderableGraph.graphColoring = algorithmHistory[currentStep]
-        GraphView.onGraphChange(GraphView.renderableGraph)
+        loadFromHistory(currentStep)
     }
 
     // Does a single algorithm step
@@ -153,8 +158,7 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
 
         if (currentStep < algorithmHistory.size - 1) { // If the next step was already done
             currentStep += 1
-            GraphView.renderableGraph.graphColoring = algorithmHistory[currentStep]
-            GraphView.onGraphChange(GraphView.renderableGraph)
+            loadFromHistory(currentStep)
 
             return
         }
@@ -166,7 +170,7 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
         }
 
         // Otherwise, a step was successfully made
-        algorithmHistory.add(GraphView.renderableGraph.graphColoring)
+        addCurrentStateToHistory()
         currentStep += 1
     }
 
@@ -182,7 +186,27 @@ class AlgorithmRunner(private val alertDialogHelper: AlertDialogHelper) {
         // Otherwise, a step can be undone
         hasMoreSteps = true
         currentStep -= 1
-        GraphView.renderableGraph.graphColoring = algorithmHistory[currentStep]
+        loadFromHistory(currentStep)
+    }
+
+    // Adds the current state to the end of the history
+    // Doesn't update currentStep variable
+    private fun addCurrentStateToHistory() {
+        algorithmHistory.add(GraphView.renderableGraph.graphColoring)
+        consoleHistory.add(Console.text.toAnnotatedString())
+        edgeWindowHistory.add(EdgeWindow.text.toAnnotatedString())
+    }
+
+    // Loads history states for the given step
+    // Doesn't update currentStep variable
+    private fun loadFromHistory(step: Int) {
+        Console.text = AnnotatedString.Builder(consoleHistory[step])
+        Console.textRenderTrigger += 1
+
+        EdgeWindow.text = AnnotatedString.Builder(edgeWindowHistory[step])
+        EdgeWindow.textRenderTrigger += 1
+
+        GraphView.renderableGraph.graphColoring = algorithmHistory[step]
         GraphView.onGraphChange(GraphView.renderableGraph)
     }
 }
