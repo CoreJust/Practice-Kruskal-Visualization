@@ -55,34 +55,21 @@ class Kruskal(val graph: RenderableGraph) {
             return sum
         }
 
-    companion object{
-        val edgeInMST = Color.Red           //цвет рёбер в МОД
-        var skippedEdge = Color.Gray        //цвет пропущенных рёбер
-
-        val textEdgeInMST = Color.Magenta   //цвет текста о ребрах в МОД
-        val textSkippedEdge = Color.Gray    //цвет текста о пропущенном ребре
-
-        val allConsoleText = Color.Black    //основной цвет текста в консоли (шаг №n)
-        val consoleSkippedEdge = Color(0, 24, 161, 255) //цвет строки про число пропущенных рёбер
-        val consoleEdgeInMST = Color(47, 5, 173, 255)    //цвет строки про добавленное ребро в МОД
-        val consoleRecoloredVert = Color(132, 0, 176, 255) //цвет строки про число перекрашенных вершин Color(red = 10, green = 140, blue = 191, alpha = 255)
-        val consoleMSTWeight = Color.Magenta   //цвет строки с весом МОДа
-    }
 
     fun printInformConsole(stepNum:Int, skiped:Int, added:Edge?, recolored:Int){
-        Console.println("_______ Step №$stepNum ________", allConsoleText)
-        Console.println("$skiped edges skipped", consoleSkippedEdge)
+        Console.println("_______ Step №$stepNum ________", AlgorithmOptions.theme.allConsoleText)
+        Console.println("$skiped edges skipped", AlgorithmOptions.theme.consoleSkippedEdge)
         if(added != null)
-            Console.println("Added ${added.first.name} --(weight = ${added.weight})-- ${added.second.name}", consoleEdgeInMST)
-        Console.println("Recolored $recolored vertices", consoleRecoloredVert)
-        Console.println("Current MST weight: $weightMST", consoleMSTWeight)
+            Console.println("Added ${added.first.name} --(weight = ${added.weight})-- ${added.second.name}", AlgorithmOptions.theme.consoleEdgeInMST)
+        Console.println("Recolored $recolored vertices", AlgorithmOptions.theme.consoleRecoloredVert)
+        Console.println("Current MST weight: $weightMST", AlgorithmOptions.theme.consoleMSTWeight)
     }
 
 
     fun createTextEdges(ind:Int, edgeList:List<Edge>){  //ind - текущее ребро (cur), edgeList - отсортированный список рёбер
         EdgeWindow.clear()                              //очислили окно с рёбрами
         var res:Int = 0
-        var cur:String = " skipped"
+        val cur:String = " skipped"
         var pos = 0
         for(i in 0..edgeList.size - 1)
         {
@@ -90,7 +77,7 @@ class Kruskal(val graph: RenderableGraph) {
                 if(i == ind) {
                     EdgeWindow.println(
                         "" + edgeList[i].first.name + " – (w = " + edgeList[i].weight + ") – " + edgeList[i].second.name + " - in MST",
-                        textEdgeInMST
+                        AlgorithmOptions.theme.textEdgeInMST
                     )   //в дереве красные
                     res += edgeList[i].first.name.length + 12 + edgeList[i].weight.toString().length + edgeList[i].second.name.length + 10
                 }
@@ -99,9 +86,9 @@ class Kruskal(val graph: RenderableGraph) {
                     EdgeWindow.println(
                         "" + edgeList[i].first.name + " – (w = " + edgeList[i].weight + ") – " + edgeList[i].second.name + " - in MST",
                         Color(
-                            red = textEdgeInMST.red,
-                            green = textEdgeInMST.green,
-                            blue = textEdgeInMST.blue,
+                            red = AlgorithmOptions.theme.textEdgeInMST.red,
+                            green = AlgorithmOptions.theme.textEdgeInMST.green,
+                            blue = AlgorithmOptions.theme.textEdgeInMST.blue,
                             alpha = alpha
                         )
                     )
@@ -113,7 +100,7 @@ class Kruskal(val graph: RenderableGraph) {
                 if(i <= ind) {
                     EdgeWindow.println(
                         "" + edgeList[i].first.name + " – (w = " + edgeList[i].weight + ") – " + edgeList[i].second.name + cur,
-                        textSkippedEdge
+                        AlgorithmOptions.theme.textSkippedEdge
                     )      //пропущенные серые
                     res += edgeList[i].first.name.length + 12 + edgeList[i].weight.toString().length + edgeList[i].second.name.length + cur.length + 1
                 }
@@ -190,8 +177,8 @@ class Kruskal(val graph: RenderableGraph) {
                 newIndex = i                            //получаем индекс найдкнного ребра
                 break                                   //выходим из цикла
             }
-            if(edgeList[i].color != edgeInMST) {        //если ребро не в МОД
-                graph.setEdgeColor(edgeList[i], skippedEdge)
+            if(edgeList[i].color != AlgorithmOptions.theme.edgeInMST) {        //если ребро не в МОД
+                graph.setEdgeColor(edgeList[i], AlgorithmOptions.theme.skippedEdge)
                 skiped++
             }
 
@@ -251,7 +238,7 @@ class Kruskal(val graph: RenderableGraph) {
             state[j] = true                                 //отметили, что ребро в МОД
             printInformConsole(stepNum, skiped, edgeList[j], recolored) //вывод в консоль
             createTextEdges(j, edgeList)                    //вывели ребра после добавления
-            graph.setEdgeColor(edgeList[j], edgeInMST)
+            graph.setEdgeColor(edgeList[j], AlgorithmOptions.theme.edgeInMST)
             GraphView.onGraphChange(graph)                  //отрисовка графа
         }
         //проверка не прошли ли мы все ребра
