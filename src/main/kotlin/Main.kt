@@ -32,7 +32,7 @@ fun main() = application {
     Window(
         title = "Practice",
         onCloseRequest = ::exitApplication,
-        icon = painterResource("images/icon2.png")
+        icon = painterResource("images/main_icon.png")
     ) {
         MaterialTheme {
             MenuBar {
@@ -64,8 +64,8 @@ fun main() = application {
                     )
                 }
                 Menu("Options", mnemonic = 'O') {
-                    Item("Graph render options", onClick = { GraphRenderOptionsDialogHelper.open() })
-                    Item("Algorithm options", onClick = { ComingSoonDialogHelper.open() })
+                    Item("Graph render options", onClick = { GraphRenderOptionsDialogHelper.open() }, shortcut = KeyShortcut(Key.G, ctrl = true))
+                    Item("Algorithm options", onClick = { ComingSoonDialogHelper.open() }, shortcut = KeyShortcut(Key.A, ctrl = true))
                 }
                 Menu("Info", mnemonic = 'I') {
                     Item("Guide", onClick = { GuideDialogHelper.open() })

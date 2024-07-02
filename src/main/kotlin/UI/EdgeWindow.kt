@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -79,6 +80,7 @@ fun EdgeWindowUI() {
         Window(
             onCloseRequest = { EdgeWindow.isOpen = false },
             title = "Edge list",
+            icon = painterResource("images/edge_window_icon.png"),
             visible = true,
             state = rememberWindowState(width = 400.dp)
         ) {

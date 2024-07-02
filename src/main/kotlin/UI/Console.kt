@@ -86,6 +86,7 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onModeChangeFailure: () -> Unit) {
         if (!isEditMode) {
             if (!algorithmRunner.initAlgorithm()) {
                 onModeChangeFailure()
+                return
             }
         } else {
             algorithmRunner.destroyAlgorithm()
