@@ -73,6 +73,8 @@ class AlgorithmRunner {
             hasMoreSteps = false
 
             EdgeWindow.isOpen = false
+            EdgeWindow.clear()
+            EdgeWindow.textRenderTrigger += 1
 
             GraphView.renderableGraph.resetColors()
             GraphView.onGraphChange(GraphView.renderableGraph)
@@ -87,6 +89,8 @@ class AlgorithmRunner {
             val reachedStep = currentStep
 
             destroyAlgorithm()
+            Console.clear() // Since it normally cleared only on mode change
+            Console.textRenderTrigger += 1
             initAlgorithm()
 
             while (currentStep < reachedStep && algorithm!!.step()) {

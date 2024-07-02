@@ -284,7 +284,7 @@ class GraphView {
         // Sets the currently active vertex and changes its color
         private fun setActiveVertex(vertex: Vertex?) {
             if (vertex != activeVertex) {
-                activeVertex?.also { renderableGraph.setVertexColor(it, RenderableGraph.DEFAULT_COLOR) }
+                activeVertex?.also { renderableGraph.setVertexColor(it, RenderableGraph.DEFAULT_VERTEX_COLOR) }
                 vertex?.also { renderableGraph.setVertexColor(it, RenderableGraph.ACTIVE_COLOR) }
                 activeVertex = vertex
             }

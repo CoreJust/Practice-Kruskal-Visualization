@@ -6,6 +6,7 @@
 
 package graph
 
+import algorithm.AlgorithmOptions
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
@@ -20,7 +21,8 @@ import androidx.compose.ui.unit.sp
 
 class RenderableGraph : Graph() {
     companion object {
-        val DEFAULT_COLOR = Color.Blue
+        val DEFAULT_VERTEX_COLOR = Color.Blue
+        val DEFAULT_EDGE_COLOR = Color.Black
         val ACTIVE_COLOR = Color.Red
         val TEXT_COLOR = Color.Black
         val WEIGHT_BACKGROUND_COLOR = Color.Gray.compositeOver(Color.White)
@@ -132,8 +134,8 @@ class RenderableGraph : Graph() {
             for (colorType in 0..2) {
                 for (edge in edges) {
                     val edgeColorType = when(edge.color) {
-                        Color.Gray -> 0
-                        DEFAULT_COLOR -> 1
+                        AlgorithmOptions.theme.skippedEdge -> 0
+                        DEFAULT_EDGE_COLOR -> 1
                         else -> 2
                     }
 
@@ -158,9 +160,9 @@ class RenderableGraph : Graph() {
     // Changes all the colors to the default ones
     fun resetColors() {
         for (vertex in vertices) {
-            vertex.color = DEFAULT_COLOR
+            vertex.color = DEFAULT_VERTEX_COLOR
             for (outcomingEdge in vertex.outcomingEdges) {
-                outcomingEdge.color = DEFAULT_COLOR
+                outcomingEdge.color = DEFAULT_EDGE_COLOR
             }
         }
     }
@@ -189,7 +191,7 @@ class RenderableGraph : Graph() {
             throw NoSuchVertexException(vertex.name)
         }
 
-        vertex.color = color ?: DEFAULT_COLOR
+        vertex.color = color ?: DEFAULT_VERTEX_COLOR
     }
 
     // Allows to give an edge a color, if color is null than the default color is applied
@@ -205,8 +207,8 @@ class RenderableGraph : Graph() {
             throw NoSuchVertexException(to.name)
         }
 
-        setOneSideEdgeColor(from, to, color ?: DEFAULT_COLOR)
-        setOneSideEdgeColor(to, from, color ?: DEFAULT_COLOR)
+        setOneSideEdgeColor(from, to, color ?: DEFAULT_EDGE_COLOR)
+        setOneSideEdgeColor(to, from, color ?: DEFAULT_EDGE_COLOR)
     }
 
     // Allows to give a vertex a new name
@@ -289,7 +291,7 @@ class RenderableGraph : Graph() {
             throw VertexAlreadyExistsException(name)
         }
 
-        val vertex = super.newVertex(name, DEFAULT_COLOR, pos)
+        val vertex = super.newVertex(name, DEFAULT_VERTEX_COLOR, pos)
         verticesByName[name] = vertex
 
         return vertex
@@ -333,7 +335,7 @@ class RenderableGraph : Graph() {
             throw EdgeAlreadyExistsException(from.name, to.name)
         }
 
-        super.addEdge(from, to, weight, DEFAULT_COLOR)
+        super.addEdge(from, to, weight, DEFAULT_EDGE_COLOR)
     }
 
     // Removes an edge from the graph
