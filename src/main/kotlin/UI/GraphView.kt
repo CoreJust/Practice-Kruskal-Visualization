@@ -330,13 +330,10 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
                         Key.C -> if (isEditMode) onClearGraph()
                         Key.I -> if (isEditMode) GraphInsertionDialogHelper.open()
                         Key.Q -> GraphInfoDialogHelper.open()
-                        else -> return@onKeyEvent false
                     }
-
-                    true
-                } else {
-                    false
                 }
+
+                false
             }.focusable()
             .focusRequester(canvasFocusRequester)
     ) {
