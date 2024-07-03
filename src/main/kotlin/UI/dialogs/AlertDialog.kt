@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.window.DialogProperties
 
 class AlertDialogHelper {
     companion object {
@@ -47,6 +48,7 @@ private fun AlertDialogUI(title: String, message: String, onDismiss: () -> Unit)
     AlertDialog(
         text = { Text(message) },
         title = { Text(title) },
+        properties = DialogProperties(dismissOnClickOutside = false, dismissOnBackPress = false),
         onDismissRequest = { onDismiss() },
         confirmButton = {
             Button({ onDismiss() }) {

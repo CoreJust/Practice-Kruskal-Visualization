@@ -17,5 +17,11 @@ class GraphRenderOptions {
         var WEIGHT_POSITION = 0.5f // Controls how far the weight is positioned on the edge
 
         var layout: Layout = CircleLayout()
+
+        val VERTEX_SIZE_VALUE_RANGE = 0.005f..0.1f
+        val EDGE_WIDTH_VALUE_RANGE = 0.001f..0.025f
+        val VERTEX_NAME_FONT_SIZE_VALUE_RANGE = 0.005f..0.07f
+        val WEIGHT_FONT_SIZE_RANGE = 0.004f..0.05f
+        val WEIGHT_POSITION_VALUE_RANGE = 0.05f..0.95f
     }
 }

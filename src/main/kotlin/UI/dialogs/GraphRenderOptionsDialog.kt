@@ -56,8 +56,7 @@ private fun GraphRenderOptionsDialogUI(onDismiss: () -> Unit) {
                 GraphRenderOptions.VERTEX_SIZE = it
                 GraphView.onGraphChange(GraphView.renderableGraph)
             },
-            minValue = 0.005f,
-            maxValue = 0.1f
+            valueRange = GraphRenderOptions.VERTEX_SIZE_VALUE_RANGE
         )
 
         SliderOption(
@@ -67,8 +66,7 @@ private fun GraphRenderOptionsDialogUI(onDismiss: () -> Unit) {
                 GraphRenderOptions.EDGE_WIDTH = it
                 GraphView.onGraphChange(GraphView.renderableGraph)
             },
-            minValue = 0.001f,
-            maxValue = 0.025f
+            valueRange = GraphRenderOptions.EDGE_WIDTH_VALUE_RANGE
         )
 
         SliderOption(
@@ -78,8 +76,7 @@ private fun GraphRenderOptionsDialogUI(onDismiss: () -> Unit) {
                 GraphRenderOptions.VERTEX_NAME_FONT_SIZE = it
                 GraphView.onGraphChange(GraphView.renderableGraph)
             },
-            minValue = 0.005f,
-            maxValue = 0.07f
+            valueRange = GraphRenderOptions.VERTEX_NAME_FONT_SIZE_VALUE_RANGE
         )
 
         SliderOption(
@@ -89,8 +86,7 @@ private fun GraphRenderOptionsDialogUI(onDismiss: () -> Unit) {
                 GraphRenderOptions.WEIGHT_FONT_SIZE = it
                 GraphView.onGraphChange(GraphView.renderableGraph)
             },
-            minValue = 0.004f,
-            maxValue = 0.05f
+            valueRange = GraphRenderOptions.WEIGHT_FONT_SIZE_RANGE
         )
 
         SliderOption(
@@ -100,8 +96,7 @@ private fun GraphRenderOptionsDialogUI(onDismiss: () -> Unit) {
                 GraphRenderOptions.WEIGHT_POSITION = it
                 GraphView.onGraphChange(GraphView.renderableGraph)
             },
-            minValue = 0.05f,
-            maxValue = 0.95f
+            valueRange = GraphRenderOptions.WEIGHT_POSITION_VALUE_RANGE
         )
 
         Text(
@@ -121,8 +116,7 @@ private fun GraphRenderOptionsDialogUI(onDismiss: () -> Unit) {
                 (GraphRenderOptions.layout as CircleLayout).radius = it
                 GraphView.repositionVertices()
             },
-            minValue = 0f,
-            maxValue = 1f
+            valueRange = 0f..1f
         )
 
         SliderOption(
@@ -132,8 +126,7 @@ private fun GraphRenderOptionsDialogUI(onDismiss: () -> Unit) {
                 (GraphRenderOptions.layout as CircleLayout).vertexTolerance = it
                 GraphView.repositionVertices()
             },
-            minValue = 5f,
-            maxValue = 100f
+            valueRange = 5f..100f
         )
 
         SliderOption(
@@ -143,8 +136,7 @@ private fun GraphRenderOptionsDialogUI(onDismiss: () -> Unit) {
                 (GraphRenderOptions.layout as CircleLayout).edgeTolerance = it
                 GraphView.repositionVertices()
             },
-            minValue = 10f,
-            maxValue = 200f
+            valueRange = 10f..200f
         )
 
         Row {

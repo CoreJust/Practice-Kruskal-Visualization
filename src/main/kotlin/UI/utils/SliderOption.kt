@@ -18,13 +18,12 @@ import androidx.compose.ui.Modifier
 fun SliderOption(
     name: String,
     defaultValue: Float,
-    minValue: Float,
-    maxValue: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier.fillMaxWidth(),
     additionalContent: (@Composable RowScope.() -> Unit)? = null
 ) {
-    assert(defaultValue in minValue..maxValue)
+    assert(defaultValue in valueRange)
 
     var value by remember { mutableStateOf(defaultValue) }
 
@@ -36,7 +35,7 @@ fun SliderOption(
                onValueChange(it)
                value = it
            },
-           valueRange = minValue..maxValue
+           valueRange = valueRange
        )
 
        if (additionalContent != null) {

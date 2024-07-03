@@ -60,6 +60,7 @@ class TGFGraphFile(val file: File) : GraphFile {
             }
         }
 
+        result.positionVertices()
         return result
     }
 

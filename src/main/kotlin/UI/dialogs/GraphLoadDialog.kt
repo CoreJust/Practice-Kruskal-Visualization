@@ -7,13 +7,28 @@
 package UI.dialogs
 
 import androidx.compose.ui.awt.ComposeWindow
+import file.GraphFileException
 import file.openGraphFile
+import graph.GraphException
 import graph.RenderableGraph
 import java.awt.FileDialog
 
 fun GraphLoadDialogUI(window: ComposeWindow, onGraphChange: (RenderableGraph) -> Unit) {
     val allowedExtensions = listOf(".tgf", ".gml")
     val openedFile = FileDialog(window, "Choose a graph file", allowedExtensions, FileDialog.LOAD) ?: return
-    val loadedGraph = openGraphFile(openedFile).loadGraph().also { it.positionVertices() }
-    onGraphChange(loadedGraph)
+
+    try {
+        val loadedGraph = openGraphFile(openedFile).loadGraph()
+        onGraphChange(loadedGraph)
+    } catch (e: GraphFileException) {
+        AlertDialogHelper.open(
+            title = "Graph file exception",
+            message = e.message ?: ""
+        )
+    } catch (e: GraphException) {
+        AlertDialogHelper.open(
+            title = "Graph exception",
+            message = e.message ?: ""
+        )
+    }
 }

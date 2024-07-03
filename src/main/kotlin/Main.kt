@@ -54,7 +54,8 @@ fun main() = application {
                     Item(
                         text = "Load graph",
                         onClick = { GraphLoadDialogUI(window, GraphView::onGraphChange) },
-                        shortcut = KeyShortcut(Key.O, ctrl = true)
+                        shortcut = KeyShortcut(Key.O, ctrl = true),
+                        enabled = isEditMode
                     )
                     Item(
                         text = "Save graph",

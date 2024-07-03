@@ -8,7 +8,6 @@
 package UI.dialogs
 
 import UI.AlgorithmRunner
-import UI.GraphView
 import UI.utils.CustomDialog
 import UI.utils.SliderOption
 import algorithm.AlgorithmOptions
@@ -82,8 +81,7 @@ private fun AlgorithmOptionsDialogUI(onDismiss: () -> Unit) {
             name = "Console text size: ",
             defaultValue = AlgorithmOptions.consoleTextSize,
             onValueChange = { AlgorithmOptions.consoleTextSize = it },
-            minValue = 9f,
-            maxValue = 28f
+            valueRange = 9f..28f
         )
 
         if (isChecked) {
@@ -91,8 +89,7 @@ private fun AlgorithmOptionsDialogUI(onDismiss: () -> Unit) {
                 name = "Edge window text size: ",
                 defaultValue = AlgorithmOptions.edgeWindowTextSize,
                 onValueChange = { AlgorithmOptions.edgeWindowTextSize = it },
-                minValue = 10f,
-                maxValue = 30f
+                valueRange = 10f..30f
             )
         }
 
@@ -103,7 +100,6 @@ private fun AlgorithmOptionsDialogUI(onDismiss: () -> Unit) {
                 onCheckedChange = {
                     AlgorithmOptions.useEdgeWindow = it
                     isChecked = it
-                    GraphView.repositionVertices()
                 }
             )
         }
