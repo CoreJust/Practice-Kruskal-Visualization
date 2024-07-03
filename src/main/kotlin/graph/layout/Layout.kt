@@ -8,6 +8,7 @@
 
 package graph.layout
 
+import androidx.compose.ui.geometry.Offset
 import graph.RenderableGraph
 import graph.Vertex
 import java.util.*
@@ -16,7 +17,14 @@ abstract class Layout {
     abstract fun positionVertices(renderableGraph: RenderableGraph)
 
     // A simple auxiliary function that resets all vertex positions
-    internal fun resetVertexPositions(vertices: TreeSet<Vertex>) {
+    protected fun resetVertexPositions(vertices: TreeSet<Vertex>) {
         vertices.forEach { it.position = null }
+    }
+
+    // Multiplies vertex positions by a given factor
+    protected fun rescaleVertexPositions(vertices: Set<Vertex>, factor: Float) {
+        for (vertex in vertices) {
+            vertex.position = (vertex.position!! - Offset(0.5f, 0.5f)) * factor + Offset(0.5f, 0.5f)
+        }
     }
 }

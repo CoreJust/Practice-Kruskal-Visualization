@@ -30,7 +30,12 @@ import androidx.compose.ui.unit.sp
 class Console {
     companion object {
         internal var textRenderTrigger by mutableStateOf(0)
-        internal var text = AnnotatedString.Builder("")
+        internal var text = AnnotatedString.Builder(buildAnnotatedString {
+            withStyle(style = SpanStyle(color = Color.Blue)) { // Default console message
+                append("Enter help to get the list of available commands. For a guide on program usage, you can open Info/Guide (Ctrl+H).")
+            }
+        })
+
         internal var lastEditMode = true
 
         fun print(str: String, color: Color = Color.Blue) {

@@ -6,6 +6,7 @@
 
 package file
 
+import UI.Console
 import androidx.compose.ui.graphics.Color
 import graph.GraphRenderOptions
 import graph.RenderableGraph
@@ -13,11 +14,15 @@ import java.io.File
 
 class GMLGraphFile(val file: File) : GraphFile {
     override fun loadGraph(): RenderableGraph {
+        Console.clear()
+
         val tokenizer = GMLTokenizer(file.bufferedReader())
         val result = GMLParser(tokenizer).parse()
         if (result.vertices.find { it.position == null } != null) {
             result.positionVertices()
         }
+
+        Console.println("Successfully loaded graph from ${file.absolutePath}")
 
         return result
     }
@@ -77,5 +82,7 @@ class GMLGraphFile(val file: File) : GraphFile {
 
             out.write("]")
         }
+
+        Console.println("Successfully saved graph to ${file.absolutePath}")
     }
 }

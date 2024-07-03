@@ -36,7 +36,21 @@ class RenderableGraph : Graph() {
         set(coloring) = coloring.applyToGraph(this)
 
     // Internal auxiliary class for graph rendering
-    private class GraphRenderer(private val drawScope: DrawScope, private val textMeasurer: TextMeasurer, private val widgetScale: Float) {
+    private class GraphRenderer(
+        private val drawScope: DrawScope,
+        private val textMeasurer: TextMeasurer,
+        private val widgetScale: Float,
+        private val scale: Float,
+        private val offset: Offset
+    ) {
+        private var canvasAreaTopLeft: Offset
+        private var canvasAreaBottomRight: Offset
+
+        init {
+            canvasAreaTopLeft = fromCanvasCoordinates(Offset(0f, 0f))
+            canvasAreaBottomRight = fromCanvasCoordinates(Offset(3f, 3f))
+        }
+
         // Renders a single graph vertex
         fun renderVertex(vertex: Vertex) {
             if (vertex.position == null) return
@@ -92,16 +106,23 @@ class RenderableGraph : Graph() {
 
         // Draws the text with its center at the given position
         fun renderCenteredText(text: String, position: Offset, style: TextStyle) {
-            val vertexTextSize = textMeasurer.measure(
+            val textMeasure = textMeasurer.measure(
                 text,
                 style = style.copy(fontSize = style.fontSize * widgetScale)
             )
-                .size.let {
-                    Offset(
-                        it.width.toFloat() / widgetScale,
-                        -it.height.toFloat() / (2 * widgetScale)
-                    )
-                }
+
+            val vertexTextSize = textMeasure.size.let {
+                Offset(
+                    it.width.toFloat() / widgetScale,
+                    -it.height.toFloat() / (2 * widgetScale)
+                )
+            }
+
+            val topLeft = position - vertexTextSize * 0.5f
+            val bottomRight = position + vertexTextSize * 0.5f
+            if (!isInCanvas(topLeft, bottomRight)) {
+                return // No use in rendering it
+            }
 
             drawScope.drawText( // Vertex name
                 textMeasurer,
@@ -109,6 +130,19 @@ class RenderableGraph : Graph() {
                 topLeft = position - vertexTextSize * 0.5f,
                 style = style
             )
+        }
+
+        // Checks if an object is within the screen
+        private fun isInCanvas(topLeft: Offset, bottomRight: Offset): Boolean {
+            return topLeft.x < canvasAreaBottomRight.x && topLeft.y < canvasAreaBottomRight.y
+                    && bottomRight.x > canvasAreaTopLeft.x && bottomRight.y > canvasAreaTopLeft.y
+        }
+
+        // Calculates canvas object coordinates in graph considering the view scale and offset
+        private fun fromCanvasCoordinates(offset: Offset): Offset {
+            val translated = offset - Offset(0.5f, 0.5f)
+            val scaled = translated / this.scale
+            return scaled - this.offset + Offset(0.5f, 0.5f)
         }
     }
 
@@ -127,7 +161,7 @@ class RenderableGraph : Graph() {
             scale(scale, scale, Offset(0f, 0f))
             translate(left = offset.x - 0.5f, top = offset.y - 0.5f)
         }) {
-            val renderer = GraphRenderer(drawScope, textMeasurer, widgetScale)
+            val renderer = GraphRenderer(drawScope, textMeasurer, widgetScale, scale, offset)
 
             // First we render the edges: gray, then normal, then other colors
             val edges = edges

@@ -8,6 +8,8 @@ package UI.utils
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
@@ -28,7 +30,7 @@ fun CustomDialog(
     alignCenterVertically: Boolean = false,
     width: Dp = Dp.Unspecified,
     height: Dp = Dp.Unspecified,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable LazyItemScope.() -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -52,16 +54,16 @@ fun CustomDialog(
                 }
         ) {
             if (!alignCenterVertically) {
-                Column(
+                LazyColumn(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth().padding(9.dp)
                 ) {
-                    content()
+                    item { content() }
                 }
             } else {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                        content()
+                    LazyColumn (horizontalAlignment = Alignment.CenterHorizontally) {
+                        item { content() }
                     }
                 }
             }

@@ -41,7 +41,7 @@ class GuideDialogHelper {
 @Composable
 private fun GuideDialogUI(onDismiss: () -> Unit) {
     val guideContents = buildAnnotatedString {
-        append("Empty")
+        append("Empty") // Писать гайд сюда
     }
 
     CustomDialog(

@@ -36,7 +36,7 @@ fun main() = application {
         icon = painterResource("images/main_icon.png")
     ) {
         MaterialTheme {
-            // Calling these functions here allow the helpers to be shown
+            // Calling these functions here allow the dialogs to be shown
             AlertDialogHelper.show()
             ConfirmationDialogHelper.show()
             SingleFieldInputDialogHelper.show()
@@ -68,13 +68,13 @@ fun main() = application {
                     RadioButtonItem(
                         text = "Edit",
                         onClick = { isEditMode = true },
-                        shortcut = KeyShortcut(Key.E, ctrl = true),
+                        shortcut = KeyShortcut(Key.E, shift = true),
                         selected = isEditMode
                     )
                     RadioButtonItem(
                         text = "Algorithm",
                         onClick = { isEditMode = false },
-                        shortcut = KeyShortcut(Key.A, ctrl = true),
+                        shortcut = KeyShortcut(Key.A, shift = true),
                         selected = !isEditMode
                     )
                 }
@@ -83,8 +83,8 @@ fun main() = application {
                     Item("Algorithm options", onClick = { AlgorithmOptionsDialogHelper.open() }, shortcut = KeyShortcut(Key.A, ctrl = true))
                 }
                 Menu("Info", mnemonic = 'I') {
-                    Item("Guide", onClick = { GuideDialogHelper.open() })
-                    Item("About program", onClick = { ProgramInfoDialogHelper.open() })
+                    Item("Guide", onClick = { GuideDialogHelper.open() }, shortcut = KeyShortcut(Key.H, ctrl = true))
+                    Item("About program", onClick = { ProgramInfoDialogHelper.open() }, shortcut = KeyShortcut(Key.P, ctrl = true))
                     Item("Marks", onClick = { ComingSoonDialogHelper.open() })
                 }
             }
