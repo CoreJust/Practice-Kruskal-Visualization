@@ -89,7 +89,7 @@ class GraphView {
 
         // Called upon scrolling mouse wheel
         internal fun handleMouseWheelScroll(delta: Float, originalMousePosition: Offset) {
-            val newTransformScale = Math.clamp(transformScale * exp(delta * 0.1f), 0.025f, 4f)
+            val newTransformScale = Math.clamp(transformScale * exp(delta * -0.1f), 0.025f, 4f)
             if (newTransformScale != transformScale) {
                 val position = getRelativeMousePosition(originalMousePosition)
                 val screenCenter = Offset(0.5f, 0.5f) - transformOffset

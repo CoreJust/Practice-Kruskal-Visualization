@@ -21,7 +21,7 @@ class NaiveGridLayout(var gridStep: Float = 0.1f) : Layout() {
         resetVertexPositions(renderableGraph.vertices)
 
         val width = floor(sqrt(renderableGraph.vertices.size.toDouble())).toInt()
-        val initialCoordinate = -maxOf(0f, (width * gridStep - 1f) / 2f)
+        val initialCoordinate = 0.5f - width * gridStep / 2
         var x = 0
         var y = 0
         val components = renderableGraph.splitIntoComponents()
