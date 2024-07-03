@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-class GraphInfoDialogHelper() {
+class GraphInfoDialogHelper {
     companion object {
         private var isOpen by mutableStateOf(false)
 
@@ -30,7 +30,7 @@ class GraphInfoDialogHelper() {
         @Composable
         fun show() {
             if (isOpen) {
-                GraphInfoDialogUI({ isOpen = false })
+                GraphInfoDialogUI { isOpen = false }
             }
         }
 
@@ -54,6 +54,6 @@ private fun GraphInfoDialogUI(onDismiss: () -> Unit) {
         Text(text = "Vertices: ${GraphView.renderableGraph.vertices.size}", fontSize = 16.sp)
         Text(text = "Edges: ${edgesList.size}", fontSize = 16.sp)
         Text(text = "Components: ${GraphView.renderableGraph.splitIntoComponents().size}", fontSize = 16.sp)
-        Text(text = "Overall graph weight: ${edgesList.map { it.weight }.sum()}", fontSize = 16.sp)
+        Text(text = "Overall graph weight: ${edgesList.sumOf { it.weight }}", fontSize = 16.sp)
     }
 }

@@ -15,28 +15,30 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-class AlertDialogHelper() {
-    private var isOpen by mutableStateOf(false)
-    private var title: String = ""
-    private var message: String = ""
+class AlertDialogHelper {
+    companion object {
+        private var isOpen by mutableStateOf(false)
+        private var title: String = ""
+        private var message: String = ""
 
-    // To be used somewhere in a Composable context
-    @Composable
-    fun show() {
-        if (isOpen) {
-            AlertDialogUI(
-                title = title,
-                message = message,
-                onDismiss = { isOpen = false }
-            )
+        // To be used somewhere in a Composable context
+        @Composable
+        fun show() {
+            if (isOpen) {
+                AlertDialogUI(
+                    title = title,
+                    message = message,
+                    onDismiss = { isOpen = false }
+                )
+            }
         }
-    }
 
-    // To be used out of Composable context to open up a dialog
-    fun open(title: String, message: String) {
-        this.title = title
-        this.message = message
-        isOpen = true
+        // To be used out of Composable context to open up a dialog
+        fun open(title: String, message: String) {
+            this.title = title
+            this.message = message
+            isOpen = true
+        }
     }
 }
 

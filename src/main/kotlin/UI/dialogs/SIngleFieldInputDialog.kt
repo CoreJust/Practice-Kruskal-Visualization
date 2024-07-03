@@ -8,7 +8,6 @@
 
 package UI.dialogs
 
-import UI.GraphView
 import UI.utils.CustomDialog
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -26,45 +25,53 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import graph.GraphException
 
-class SingleFieldInputDialogHelper() {
-    private var isOpen by mutableStateOf(false)
-    private var title: String = ""
-    private var message: String? = null
-    private var label = ""
-    private var defaultText = ""
-    private var onConfirmation: (String) -> Unit = { }
+class SingleFieldInputDialogHelper {
+    companion object {
+        private var isOpen by mutableStateOf(false)
+        private var title: String = ""
+        private var message: String? = null
+        private var label = ""
+        private var defaultText = ""
+        private var onConfirmation: (String) -> Unit = { }
 
-    // To be used somewhere in a Composable context
-    @Composable
-    fun show() {
-        if (isOpen) {
-            SingleFieldInputDialogUI(
-                title = title,
-                message = message,
-                label = label,
-                defaultText = defaultText,
-                onConfirmation = {
-                    try {
-                        onConfirmation(it)
-                    } catch (e: GraphException) {
-                        GraphView.alertDialogHelper.open("Graph exception", e.message ?: "")
-                    }
+        // To be used somewhere in a Composable context
+        @Composable
+        fun show() {
+            if (isOpen) {
+                SingleFieldInputDialogUI(
+                    title = title,
+                    message = message,
+                    label = label,
+                    defaultText = defaultText,
+                    onConfirmation = {
+                        try {
+                            onConfirmation(it)
+                        } catch (e: GraphException) {
+                            AlertDialogHelper.open("Graph exception", e.message ?: "")
+                        }
 
-                    isOpen = false
-                },
-                onDismiss = { isOpen = false }
-            )
+                        isOpen = false
+                    },
+                    onDismiss = { isOpen = false }
+                )
+            }
         }
-    }
 
-    // To be used out of Composable context to open up a dialog
-    fun open(title: String, message: String? = null, label: String = "Input", defaultText: String = "", onConfirmation: (String) -> Unit) {
-        this.title = title
-        this.message = message
-        this.label = label
-        this.defaultText = defaultText
-        this.onConfirmation = onConfirmation
-        isOpen = true
+        // To be used out of Composable context to open up a dialog
+        fun open(
+            title: String,
+            message: String? = null,
+            label: String = "Input",
+            defaultText: String = "",
+            onConfirmation: (String) -> Unit
+        ) {
+            this.title = title
+            this.message = message
+            this.label = label
+            this.defaultText = defaultText
+            this.onConfirmation = onConfirmation
+            isOpen = true
+        }
     }
 }
 

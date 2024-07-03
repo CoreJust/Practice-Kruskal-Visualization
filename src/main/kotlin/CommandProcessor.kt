@@ -187,7 +187,7 @@ class CommandProcessor {
 
         // Executes command position ...
         private fun executePosition(args: List<String>) {
-            if (args.size != 0) {
+            if (args.isNotEmpty()) {
                 Console.println("Command position takes no arguments", Color.Red)
             } else {
                 GraphView.repositionVertices()

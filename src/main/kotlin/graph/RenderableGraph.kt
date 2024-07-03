@@ -249,6 +249,7 @@ class RenderableGraph : Graph() {
 
     // Allows to give an edge a new weight
     fun setEdgeWeight(edge: Edge, newWeight: Int) {
+        edge.weight = newWeight
         setEdgeWeight(edge.first, edge.second, newWeight)
     }
 
@@ -414,12 +415,6 @@ class RenderableGraph : Graph() {
         } else {
             verticesByName[name]!!
         }
-    }
-
-    // Returns the color of the given edge
-    // If no such edge exists, returns null
-    private fun getEdgeColor(from: Vertex, to: Vertex): Color? {
-        return getOutcomingEdge(from, to)?.color
     }
 
     // Sets the color of an edge in one side

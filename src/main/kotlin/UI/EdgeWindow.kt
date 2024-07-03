@@ -36,7 +36,7 @@ import androidx.compose.ui.window.rememberWindowState
 *    EdgeWindow.render()
 */
 
-class EdgeWindow() {
+class EdgeWindow {
     companion object {
         var isOpen by mutableStateOf(false)
 

@@ -29,12 +29,26 @@ import androidx.compose.ui.window.application
 fun main() = application {
     var isEditMode by remember { mutableStateOf(true) }
 
+    // The main application window
     Window(
         title = "Practice",
         onCloseRequest = ::exitApplication,
         icon = painterResource("images/main_icon.png")
     ) {
         MaterialTheme {
+            // Calling these functions here allow the helpers to be shown
+            AlertDialogHelper.show()
+            ConfirmationDialogHelper.show()
+            SingleFieldInputDialogHelper.show()
+            GraphInfoDialogHelper.show()
+            GraphInsertionDialogHelper.show()
+            ProgramInfoDialogHelper.show()
+            GuideDialogHelper.show()
+            GraphRenderOptionsDialogHelper.show()
+            AlgorithmOptionsDialogHelper.show()
+            ComingSoonDialogHelper.show()
+
+            // The menu bar at the top of the window
             MenuBar {
                 Menu("File", mnemonic = 'F') {
                     Item(

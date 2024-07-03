@@ -44,10 +44,6 @@ class GraphView {
         internal var renderableGraph = RenderableGraph()
         internal var graphRenderTrigger by mutableIntStateOf(0) // Used to trigger graph redrawing
 
-        val alertDialogHelper = AlertDialogHelper()
-        internal val vertexNameInputDialogHelper = SingleFieldInputDialogHelper()
-        internal val edgeWeightInputDialogHelper = SingleFieldInputDialogHelper()
-
         internal var isEditMode = true // Is it the edit mode at all or algorithm mode
         internal var isRenameMode = false // When we are in the edit mode, we can press shift and rename vertices / edges
 
@@ -208,7 +204,7 @@ class GraphView {
 
         // Handles the case when a new vertex is being created by LMB click
         private fun handleVertexCreation(position: Offset) {
-            vertexNameInputDialogHelper.open(
+            SingleFieldInputDialogHelper.open(
                 title = "Enter vertex name",
                 label = "Vertex name",
                 defaultText = renderableGraph.makeUpVertexName(),
@@ -221,14 +217,14 @@ class GraphView {
 
         // Handles the case when a new edge is being created by LMB click
         private fun handleEdgeCreation(from: Vertex, to: Vertex) {
-            edgeWeightInputDialogHelper.open(
+            SingleFieldInputDialogHelper.open(
                 title = "Enter edge weight",
                 label = "Edge weight",
                 defaultText = "1",
                 onConfirmation = {
                     val newWeight = it.toIntOrNull()
                     if (newWeight == null) {
-                        alertDialogHelper.open(
+                        AlertDialogHelper.open(
                             title = "Error",
                             message = "You entered \"$it\", but a number was expected"
                         )
@@ -242,7 +238,7 @@ class GraphView {
 
         // Handles the case of a vertex being renamed
         private fun handleVertexRenaming(vertex: Vertex) {
-            vertexNameInputDialogHelper.open(
+            SingleFieldInputDialogHelper.open(
                 title = "Enter new vertex name",
                 label = "Vertex name",
                 defaultText = vertex.name,
@@ -255,13 +251,13 @@ class GraphView {
 
         // Handles the case of an edge being renamed
         private fun handleEdgeRenaming(from: Vertex, to: Vertex) {
-            edgeWeightInputDialogHelper.open(
+            SingleFieldInputDialogHelper.open(
                 title = "Enter new edge weight",
                 label = "Edge weight",
                 defaultText = renderableGraph.getOutcomingEdge(from, to)?.weight?.toString() ?: "",
                 onConfirmation = {
                     if (renderableGraph.getOutcomingEdge(from, to) == null) {
-                        alertDialogHelper.open(
+                        AlertDialogHelper.open(
                             title = "Error",
                             message = "No such edge exists: (${from.name} - ${to.name})"
                         )
@@ -269,7 +265,7 @@ class GraphView {
 
                     val newWeight = it.toIntOrNull()
                     if (newWeight == null) {
-                        alertDialogHelper.open(
+                        AlertDialogHelper.open(
                             title = "Error",
                             message = "You entered \"$it\", but a number was expected"
                         )
@@ -317,7 +313,6 @@ class GraphView {
 
 @Composable
 fun RowScope.GraphViewUI(isEditMode: Boolean) {
-    val actionConfirmationDialogHelper by remember { mutableStateOf(ConfirmationDialogHelper()) }
     val canvasFocusRequester = remember { FocusRequester() }
 
     GraphView.isEditMode = isEditMode
@@ -332,7 +327,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
                     when (it.key) {
                         Key.A -> GraphView.repositionVertices()
                         Key.B -> GraphView.setDefaultView()
-                        Key.C -> if (isEditMode) onClearGraph(actionConfirmationDialogHelper)
+                        Key.C -> if (isEditMode) onClearGraph()
                         Key.I -> if (isEditMode) GraphInsertionDialogHelper.open()
                         Key.Q -> GraphInfoDialogHelper.open()
                         else -> return@onKeyEvent false
@@ -359,7 +354,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
                             val event = awaitPointerEvent()
                             val mousePosition = event.changes.first().position
                             val mouseOffset = event.changes.map { it.positionChange() }.reduce { acc, offset -> acc + offset }
-                            val wheelDelta = event.changes.map { it.scrollDelta.let { it.x + it.y } }.sum()
+                            val wheelDelta = event.changes.map { change -> change.scrollDelta.let { it.x + it.y } }.sum()
 
                             event.changes.forEach { e -> e.consume() }
                             GraphView.isRenameMode = event.keyboardModifiers.isShiftPressed
@@ -373,7 +368,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
                                     PointerEventType.Move -> GraphView.handleMouseMove(mouseOffset)
                                 }
                             } catch (e: GraphException) {
-                                GraphView.alertDialogHelper.open(
+                                AlertDialogHelper.open(
                                     title = "Graph exception",
                                     message = e.message ?: ""
                                 )
@@ -411,7 +406,7 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
 
             if (isEditMode) {
                 Button(onClick = {
-                    onClearGraph(actionConfirmationDialogHelper)
+                    onClearGraph()
                 }, modifier = buttonModifier) {
                     Text("C", style = buttonTextStyle)
                 }
@@ -430,28 +425,11 @@ fun RowScope.GraphViewUI(isEditMode: Boolean) {
             }
         }
     }
-
-    // Calling these functions here allow the helpers to be shown
-    GraphView.alertDialogHelper.show()
-    GraphView.vertexNameInputDialogHelper.show()
-    GraphView.edgeWeightInputDialogHelper.show()
-
-    AlgorithmRunner.alertDialogHelper.show()
-
-    GraphInfoDialogHelper.show()
-    GraphInsertionDialogHelper.show()
-    ProgramInfoDialogHelper.show()
-    GuideDialogHelper.show()
-    GraphRenderOptionsDialogHelper.show()
-    AlgorithmOptionsDialogHelper.show()
-    ComingSoonDialogHelper.show()
-
-    actionConfirmationDialogHelper.show()
 }
 
 // Called on graph clear action (when the corresponding button is clicked)
-private fun onClearGraph(actionConfirmationDialogHelper: ConfirmationDialogHelper) {
-    actionConfirmationDialogHelper.open(
+private fun onClearGraph() {
+    ConfirmationDialogHelper.open(
         title = "Confirm action",
         message = "Are you sure you want to delete the current graph?",
         onConfirmation = { GraphView.onGraphChange(RenderableGraph()) }

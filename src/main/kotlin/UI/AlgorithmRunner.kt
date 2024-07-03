@@ -17,8 +17,6 @@ import kotlin.concurrent.schedule
 
 class AlgorithmRunner {
     companion object {
-        val alertDialogHelper = AlertDialogHelper()
-
         private var algorithm: Kruskal? = null
 
         // The history of previous graph color states that allows making a step back
@@ -55,7 +53,7 @@ class AlgorithmRunner {
                 GraphView.renderableGraph.resetColors()
                 GraphView.onGraphChange(GraphView.renderableGraph)
 
-                alertDialogHelper.open(title = "Algorithm exception", message = e.message ?: "")
+                AlertDialogHelper.open(title = "Algorithm exception", message = e.message ?: "")
 
                 return false
             }
@@ -108,7 +106,7 @@ class AlgorithmRunner {
                 try {
                     stepForth()
                 } catch (e: AlgorithmException) {
-                    alertDialogHelper.open(
+                    AlertDialogHelper.open(
                         title = "Algorithm exception",
                         message = e.message ?: ""
                     )
@@ -187,7 +185,7 @@ class AlgorithmRunner {
             }
 
             if (!algorithm!!.step()) { // Check if no more algorithm steps can be done
-                alertDialogHelper.open(title = "Info", message = "Algorithm is finished, no more steps can be done")
+                AlertDialogHelper.open(title = "Info", message = "Algorithm is finished, no more steps can be done")
                 hasMoreSteps = false
                 return
             }
@@ -202,7 +200,7 @@ class AlgorithmRunner {
             assert(algorithm != null)
 
             if (currentStep <= 0) { // Check if there are steps that can be undone
-                alertDialogHelper.open(
+                AlertDialogHelper.open(
                     title = "Algorithm exception",
                     message = "You are in the algorithm initial state, no steps to be undone"
                 )

@@ -26,7 +26,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import graph.RenderableGraph
-import graph.Vertex
 
 class GraphInsertionDialogHelper {
     companion object {
@@ -36,7 +35,7 @@ class GraphInsertionDialogHelper {
         @Composable
         fun show() {
             if (isOpen) {
-                GraphInsertionDialogUI({ isOpen = false })
+                GraphInsertionDialogUI { isOpen = false }
             }
         }
 
@@ -167,13 +166,22 @@ private fun GraphInsertionDialogUI(onDismiss: () -> Unit) {
 private fun onConfirmation(selectedGraphType: String, graphSize: Int, firstPartSize: Int, secondPartSize: Int) {
     val result = RenderableGraph()
     if (selectedGraphType == "Complete bipartite graph") {
+        if (firstPartSize < 0 || secondPartSize < 0) {
+            AlertDialogHelper.open(
+                title = "Graph insertion error",
+                message = "The sizes of bipartite graph parts must be non-negative, but $firstPartSize and $secondPartSize were given"
+            )
+
+            return
+        }
+
         val firstHalfStep = 1f / firstPartSize
-        val firstHalfVertices = List<Vertex>(firstPartSize) { index ->
+        val firstHalfVertices = List(firstPartSize) { index ->
             result.addVertex("A${index + 1}", Offset(0.2f, firstHalfStep * index))
         }
 
         val secondHalfStep = 1f / secondPartSize
-        val secondHalfVertices = List<Vertex>(secondPartSize) { index ->
+        val secondHalfVertices = List(secondPartSize) { index ->
             result.addVertex("B${index + 1}", Offset(0.8f, secondHalfStep * index))
         }
 
@@ -183,6 +191,15 @@ private fun onConfirmation(selectedGraphType: String, graphSize: Int, firstPartS
             }
         }
     } else {
+        if (graphSize < 0) {
+            AlertDialogHelper.open(
+                title = "Graph insertion error",
+                message = "The size of a graph must be non-negative, but $graphSize was given"
+            )
+
+            return
+        }
+
         for (i in 1..graphSize) {
             result.addVertex("$i")
         }
@@ -195,10 +212,12 @@ private fun onConfirmation(selectedGraphType: String, graphSize: Int, firstPartS
                     }
                 }
             }
-        } else if (selectedGraphType == "Cycle graph") {
+        } else if (selectedGraphType == "Cycle graph" && graphSize > 1) {
             result.addEdge("1", "$graphSize", 1)
-            for (i in 2..graphSize) {
-                result.addEdge("${i - 1}", "$i", 1)
+            if (graphSize > 2) {
+                for (i in 2..graphSize) {
+                    result.addEdge("${i - 1}", "$i", 1)
+                }
             }
         }
 

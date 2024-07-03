@@ -8,7 +8,6 @@
 package UI
 
 import CommandProcessor
-import UI.dialogs.AlertDialogHelper
 import algorithm.AlgorithmOptions
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -132,7 +131,7 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onModeChangeFailure: () -> Unit) {
         val bottomButtonPadding = 6.dp
         if (!isEditMode) {
             Row(modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterHorizontally)) {
-                Box(modifier = Modifier.fillMaxHeight().weight(1f).padding(horizontal = 5.dp)) {
+                Box(modifier = Modifier.fillMaxHeight().weight(1f).padding(horizontal = 3.dp)) {
                     Button(onClick = {
                         isAlgorithmRunning = false
                         AlgorithmRunner.toTheBeginning()
@@ -146,7 +145,7 @@ fun RowScope.ConsoleUI(isEditMode: Boolean, onModeChangeFailure: () -> Unit) {
                     }
                 }
 
-                Box(modifier = Modifier.fillMaxHeight().weight(1f).padding(horizontal = 3.dp)) {
+                Box(modifier = Modifier.fillMaxHeight().weight(1f).padding(horizontal = 5.dp)) {
                     Button(onClick = {
                         if (isAlgorithmRunning) {
                             AlgorithmRunner.decelerate()
